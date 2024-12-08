@@ -41,6 +41,7 @@ const userSchema = new mongoose.Schema(
       },
       select: false,
     },
+    passwordChangedAt: Date,
     profilePicture: {
       type: String,
       //   required: [true, "Please provide a driver profile picture"],
@@ -99,6 +100,7 @@ userSchema.methods.createPasswordResetToken = function () {
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   return resetToken;
 };
+
 const User = mongoose.model("User", userSchema);
 
 export default User;
