@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import validator from "validator";
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema(
   {
@@ -9,7 +10,6 @@ const userSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      required: [true, "Please provide a driver phone number"],
     },
     email: {
       type: String,
@@ -41,17 +41,18 @@ const userSchema = new mongoose.Schema(
       },
       select: false,
     },
+    passwordChangedAt: Date,
     profilePicture: {
       type: String,
       //   required: [true, "Please provide a driver profile picture"],
     },
     vehicleId: {
       type: String,
-      required: [true, "Please provide a vehicle ID"],
+      // required: [true, "Please provide a vehicle ID"],
     },
     clientId: {
       type: String,
-      required: [true, "Please provide a client ID"],
+      // required: [true, "Please provide a client ID"],
     },
     createdAt: {
       type: Date,
@@ -59,7 +60,6 @@ const userSchema = new mongoose.Schema(
     },
     updatedAt: {
       type: Date,
-      default: Date.now(),
     },
   },
   {
@@ -99,6 +99,7 @@ userSchema.methods.createPasswordResetToken = function () {
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   return resetToken;
 };
+
 const User = mongoose.model("User", userSchema);
 
 export default User;

@@ -18,15 +18,18 @@ const createSendToken = (user, statusCode, res) => {
     ),
     httpOnly: true,
   };
-  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+
+  if (process.env.NODE_ENV === "production") {
+    cookieOptions.secure = true;
+  } else {
+    cookieOptions.secure = false;
+  }
+
   res.cookie("jwt", token, cookieOptions);
   user.password = undefined;
-  res.status(statusCode).json({
+  return res.status(statusCode).json({
     status: "success",
     token,
-    data: {
-      user,
-    },
   });
 };
 
@@ -91,7 +94,7 @@ export const protect = catchAsync(async (req, res, next) => {
   next();
 });
 
-export const restrictedTo = (...roles) => {
+export const restrictTo = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
       return next(
