@@ -14,7 +14,7 @@ export const getAllDrivers = catchAsync(async (req, res, next) => {
 });
 
 export const getDriver = catchAsync(async (req, res, next) => {
-  const driver = await User.findById({ role: "driver" }, req.params.id);
+  const driver = await User.findById(req.params.id);
   if (!driver) {
     return next(new AppError("No driver found with that ID", 404));
   }
@@ -37,15 +37,10 @@ export const createDriver = catchAsync(async (req, res, next) => {
 });
 
 export const updateDriver = catchAsync(async (req, res, next) => {
-  const driver = await User.findByIdAndUpdate(
-    { role: "driver" },
-    req.params.id,
-    req.body,
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
+  const driver = await User.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
   if (!driver) {
     return next(new AppError("No driver found with that ID", 404));
   }
@@ -58,10 +53,7 @@ export const updateDriver = catchAsync(async (req, res, next) => {
 });
 
 export const deleteDriver = catchAsync(async (req, res, next) => {
-  const driver = await User.findByIdAndDelete(
-    { role: "driver" },
-    req.params.id
-  );
+  const driver = await User.findByIdAndDelete(req.params.id);
   if (!driver) {
     return next(new AppError("No driver found with that ID", 404));
   }
