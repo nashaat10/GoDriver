@@ -14,11 +14,15 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, "Please provide a driver email"],
+      unique: true,
+      lowercase: true,
+      validate: [validator.isEmail, "Please provide a valid email"],
     },
     role: {
       type: String,
       enum: ["driver", "client", "manager"],
       default: "driver",
+      required: [true, "Please provide a user role"],
     },
     password: {
       type: String,
