@@ -7,6 +7,7 @@ const AppError = require("./src/utils/appError");
 const globalErrorHandler = require("./src/controllers/errorController");
 
 const app = express();
+// add route limit
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 1000,
