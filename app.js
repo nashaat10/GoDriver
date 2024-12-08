@@ -1,10 +1,9 @@
-const express = require("express");
-const morgan = require("morgan");
-const rateLimit = require("express-rate-limit");
-const cors = require("cors");
-
-const AppError = require("./src/utils/appError");
-const globalErrorHandler = require("./src/controllers/errorController");
+import express from "express";
+import morgan from "morgan";
+import rateLimit from "express-rate-limit";
+import cors from "cors";
+import AppError from "./src/utils/appError.js";
+import globalErrorHandler from "./src/controllers/errorController.js";
 
 const app = express();
 // add route limit
@@ -24,4 +23,4 @@ app.all("*", (req, res, next) => {
 });
 app.use(globalErrorHandler);
 
-module.exports = app;
+export default app;
