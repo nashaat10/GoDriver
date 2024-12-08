@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import validator from "validator";
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema(
   {
@@ -9,7 +10,6 @@ const userSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      required: [true, "Please provide a driver phone number"],
     },
     email: {
       type: String,
@@ -48,11 +48,11 @@ const userSchema = new mongoose.Schema(
     },
     vehicleId: {
       type: String,
-      required: [true, "Please provide a vehicle ID"],
+      // required: [true, "Please provide a vehicle ID"],
     },
     clientId: {
       type: String,
-      required: [true, "Please provide a client ID"],
+      // required: [true, "Please provide a client ID"],
     },
     createdAt: {
       type: Date,
@@ -60,7 +60,6 @@ const userSchema = new mongoose.Schema(
     },
     updatedAt: {
       type: Date,
-      default: Date.now(),
     },
   },
   {

@@ -18,7 +18,8 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 app.use("/api", limiter);
-app.use("/api/v1/users", driverRoutes);
+
+app.use("/api/v1/drivers", driverRoutes);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

@@ -1,12 +1,23 @@
+import * as authController from "../controllers/authController.js";
 import * as driverController from "../controllers/driverController.js";
 import express from "express";
-import * as authController from "../controllers/authController.js";
 const router = express.Router();
+
+router.post("/signup", authController.signup);
+router.post("/login", authController.login);
 
 router
   .route("/")
-  .get(authController.restrictedTo("manager"), driverController.getAllDrivers)
-  .post(authController.restrictedTo("manager"), driverController.createDriver);
+  .get(
+    authController.protect,
+    authController.restrictTo("manager"),
+    driverController.getAllDrivers
+  )
+  .post(
+    authController.protect,
+    authController.restrictTo("manager"),
+    driverController.createDriver
+  );
 
 router
   .route("/:id")
