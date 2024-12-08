@@ -5,33 +5,36 @@ import AppError from '../utils/appError';
 
 // Create a new user
 export const createUser = catchAsync(async (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return next(new AppError('Validation failed', 400));
-  }
-
-  const { name, email, phone, role, vehicleId } = req.body;
-
-  // Check if the vehicleId is required for drivers
+  const user = await User.create({role : "user"},req.body)
+  res.status(201).json({
+    status:"success",
+    data: {
+        user,
+    }
+  })
   if (role === 'driver' && !vehicleId) {
-    return next(new AppError('Vehicle ID is required for drivers', 400));
+      return next(new AppError('Vehicle ID is required for drivers', 400));
   }
-
-  const newUser = new User({
-    name,
-    email,
-    phone,
-    role,
-    vehicleId: role === 'driver' ? vehicleId : null, // Only assign vehicleId for drivers
-  });
-
-  await newUser.save();
-
   res.status(201).json({
     message: 'User created successfully',
     user: newUser,
   });
 });
+
+//   const { name, email, phone, role, vehicleId } = req.body;
+
+// Check if the vehicleId is required for drivers
+
+//   const newUser = new User({
+//     name,
+//     email,
+//     phone,
+//     role,
+//     vehicleId: role === 'driver' ? vehicleId : null, // Only assign vehicleId for drivers
+//   });
+
+// await newUser.save();
+
 
 // Get all users (Managers can access all users)
 export const getAllUsers = catchAsync(async (req, res, next) => {
@@ -53,18 +56,24 @@ export const getUserById = catchAsync(async (req, res, next) => {
 
 // Update a user's details
 export const updateUser = catchAsync(async (req, res, next) => {
-  const { name, email, phone, role, vehicleId } = req.body;
-
-  const user = await User.findById(req.params.id);
+  const user = await User.findByIdAndUpdate(
+    {role:"user"},
+    req.params.id,
+    req.body,
+    {
+        new:true,
+        runValidators: true,
+    }
+  )
   if (!user) {
     return next(new AppError('User not found', 404));
   }
 
   // Update user fields
-  user.name = name || user.name;
-  user.email = email || user.email;
-  user.phone = phone || user.phone;
-  user.role = role || user.role;
+//   user.name = name || user.name;
+//   user.email = email || user.email;
+//   user.phone = phone || user.phone;
+//   user.role = role || user.role;
   if (role === 'driver') {
     user.vehicleId = vehicleId || user.vehicleId;
   }
@@ -79,7 +88,10 @@ export const updateUser = catchAsync(async (req, res, next) => {
 
 // Delete a user (soft delete)
 export const deleteUser = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.params.id);
+  const user = await User.findByIdAndDelete(
+    {role : "user"},
+    req.params.id
+  );
   if (!user) {
     return next(new AppError('User not found', 404));
   }
