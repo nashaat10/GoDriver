@@ -15,6 +15,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please provide a driver email"],
     },
+    role: {
+      type: String,
+      enum: ["driver", "client", "manager"],
+      default: "driver",
+    },
     password: {
       type: String,
       required: [true, "Please provide a driver password"],
