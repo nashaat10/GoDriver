@@ -41,6 +41,11 @@ const userSchema = new mongoose.Schema(
       },
       select: false,
     },
+    active: {
+      type: Boolean,
+      default: true,
+      select: false,
+    },
     passwordChangedAt: Date,
     profilePicture: {
       type: String,
@@ -61,6 +66,9 @@ const userSchema = new mongoose.Schema(
     updatedAt: {
       type: Date,
     },
+    deletedAt: {
+      type: Date,
+    },
   },
   {
     toJSON: { virtuals: true },
@@ -72,6 +80,11 @@ userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 12);
   this.confirmPassword = undefined;
+  next();
+});
+
+userSchema.pre(/^find/, function (next) {
+  this.find({ active: { $ne: false } });
   next();
 });
 

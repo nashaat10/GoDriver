@@ -4,7 +4,8 @@ import rateLimit from "express-rate-limit";
 import cors from "cors";
 import AppError from "./src/utils/appError.js";
 import globalErrorHandler from "./src/controllers/errorController.js";
-import driverRoutes from "./src/routes/driverRoutes.js";
+import authRoutes from "./src/routes/authRoutes.js";
+import managerRoutes from "./src/routes/driverRoutes.js";
 
 const app = express();
 // add route limit
@@ -19,7 +20,9 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use("/api", limiter);
 
-app.use("/api/v1/auth", driverRoutes);
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/manager", managerRoutes);
+app.use("/api/v1/driver", managerRoutes);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

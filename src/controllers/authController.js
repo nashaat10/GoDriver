@@ -3,6 +3,7 @@ import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { promisify } from "util";
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
