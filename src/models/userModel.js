@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { mongo } from "mongoose";
 import validator from "validator";
 import bcrypt from "bcrypt";
 
@@ -41,24 +41,37 @@ const userSchema = new mongoose.Schema(
       },
       select: false,
     },
+    active: {
+      type: Boolean,
+      default: true,
+      select: false,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: function () {
+        return this.role === "driver";
+      },
+    },
     passwordChangedAt: Date,
     profilePicture: {
       type: String,
       //   required: [true, "Please provide a driver profile picture"],
     },
     vehicleId: {
-      type: String,
-      // required: [true, "Please provide a vehicle ID"],
+      type: mongoose.Schema.Types.ObjectId,
     },
     clientId: {
-      type: String,
-      // required: [true, "Please provide a client ID"],
+      type: mongoose.Schema.Types.ObjectId,
     },
     createdAt: {
       type: Date,
       default: Date.now(),
     },
     updatedAt: {
+      type: Date,
+    },
+    deletedAt: {
       type: Date,
     },
   },
@@ -72,6 +85,11 @@ userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 12);
   this.confirmPassword = undefined;
+  next();
+});
+
+userSchema.pre(/^find/, function (next) {
+  this.find({ active: { $ne: false } });
   next();
 });
 

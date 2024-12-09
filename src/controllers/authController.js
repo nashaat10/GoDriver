@@ -3,6 +3,7 @@ import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { promisify } from "util";
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -34,6 +35,7 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 export const signup = catchAsync(async (req, res, next) => {
+  req.body.role = "manager";
   const newUser = await User.create(req.body);
   createSendToken(newUser, 201, res);
 });
