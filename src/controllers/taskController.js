@@ -58,8 +58,8 @@ export const getAllTasksForManager = catchAsync(async (req, res, next) => {
 
 // Get all tasks assigned to a specific driver
 export const getAllTasksForDriver = catchAsync(async (req, res, next) => {
-  const driverId = req.user.id; // Assuming `req.user.id` is the logged-in driver's ID
-
+  const driverId= req.params.id;
+  
   const tasks = await Task.find({ driverId });
 
   if (!tasks || tasks.length === 0) {

@@ -27,7 +27,7 @@ router
 
 // Routes for **Drivers**
 router
-  .route('/driver')
+  .route('/driver/:id')
   .get(restrictTo('driver', 'manager'), getAllTasksForDriver); // Both drivers and managers can view tasks assigned to the driver
 
 // Routes for specific task by ID
