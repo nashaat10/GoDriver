@@ -16,7 +16,7 @@ const taskSchema = new mongoose.Schema({
     default: 'pending',
   },
   dueDate: {
-    type: Date,
+    type: Number,
     required: [true, 'A task must have a due date'],
   },
   managerId: {
@@ -31,12 +31,14 @@ const taskSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: Date.now,
   },
+  isDeleted:{
+    type: Boolean,
+    default: false
+  }
 });
 
 // Create the Task model

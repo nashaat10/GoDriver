@@ -1,4 +1,5 @@
 import express from 'express';
+// Import task controller methods
 import { 
   createTask,
   getAllTasksForManager,
@@ -6,14 +7,18 @@ import {
   getTaskById,
   updateTask,
   deleteTask
-} from '../controllers/taskController'; // Import task controller methods
-import { protect, restrictTo } from '../middlewares/authMiddleware'; // Middleware to protect routes and restrict access to certain roles
+} from '../controllers/taskController.js'
+import { protect, restrictTo } from '../middlewares/authMiddleware.js';
+
+
+// import { protect, restrictTo } from '../middlewares/authMiddleware'; // Middleware to protect routes and restrict access to certain roles
 
 const router = express.Router();
 
 // Protect all routes in this router
-router.use(protect);
+// router.use(protect);
 
+router.use(protect)
 // Routes for **Managers**
 router
   .route('/')
