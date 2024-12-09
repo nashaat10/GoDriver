@@ -27,7 +27,6 @@ export const getUser = catchAsync(async (req, res, next) => {
 });
 
 export const createDriver = catchAsync(async (req, res, next) => {
-  // const { name, phone, email, vehicleId } = req.body;
   const driverData = { ...req.body, createdBy: req.user.id };
   const driver = await User.create(driverData);
   res.status(201).json({
