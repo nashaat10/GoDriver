@@ -3,7 +3,7 @@ import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
 
 export const getAllDrivers = catchAsync(async (req, res, next) => {
-  const drivers = await User.find({ role: "driver" });
+  const drivers = await User.find({ createdBy: req.user.id, role: "driver" });
   res.status(200).json({
     status: "success",
     results: drivers.length,
@@ -28,7 +28,8 @@ export const getUser = catchAsync(async (req, res, next) => {
 
 export const createDriver = catchAsync(async (req, res, next) => {
   // const { name, phone, email, vehicleId } = req.body;
-  const driver = await User.create(req.body);
+  const driverData = { ...req.body, createdBy: req.user.id };
+  const driver = await User.create(driverData);
   res.status(201).json({
     status: "success",
     data: {

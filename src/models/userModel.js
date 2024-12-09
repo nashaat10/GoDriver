@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { mongo } from "mongoose";
 import validator from "validator";
 import bcrypt from "bcrypt";
 
@@ -46,18 +46,23 @@ const userSchema = new mongoose.Schema(
       default: true,
       select: false,
     },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: function () {
+        return this.role === "driver";
+      },
+    },
     passwordChangedAt: Date,
     profilePicture: {
       type: String,
       //   required: [true, "Please provide a driver profile picture"],
     },
     vehicleId: {
-      type: String,
-      // required: [true, "Please provide a vehicle ID"],
+      type: mongoose.Schema.Types.ObjectId,
     },
     clientId: {
-      type: String,
-      // required: [true, "Please provide a client ID"],
+      type: mongoose.Schema.Types.ObjectId,
     },
     createdAt: {
       type: Date,
