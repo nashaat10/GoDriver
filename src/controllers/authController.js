@@ -35,6 +35,7 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 export const signup = catchAsync(async (req, res, next) => {
+  req.body.role = "manager";
   const newUser = await User.create(req.body);
   createSendToken(newUser, 201, res);
 });
