@@ -8,7 +8,7 @@ import taskRoutes from "./src/routes/taskRoutes.js";
 import redisClient from "./src/config/redis.js";
 import vehicleRoutes from "./src/routes/vehicleRoutes.js";
 import authRoutes from "./src/routes/authRoutes.js";
-import managerRoutes from "./src/routes/driverRoutes.js";
+import userRoutes from "./src/routes/userRoutes.js";
 
 const app = express();
 // add route limit
@@ -18,6 +18,7 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again in an hour!",
 });
 
+app.use(express.static("./public"));
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
@@ -26,8 +27,8 @@ app.use("/api", limiter);
 app.use("/api/v1/tasks", taskRoutes);
 app.use("/api/v1/vehicles", vehicleRoutes);
 app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/manager", managerRoutes);
-app.use("/api/v1/driver", managerRoutes);
+app.use("/api/v1/manager", userRoutes);
+app.use("/api/v1/driver", userRoutes);
 // Redis connection
 redisClient.connect();
 

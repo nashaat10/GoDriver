@@ -8,7 +8,7 @@ import {
   updateTask,
   deleteTask,
 } from "../controllers/taskController.js";
-import { protect, restrictTo } from "../middlewares/authMiddleware.js";
+import { protect, restrictTo } from "../controllers/authController.js";
 
 // import { protect, restrictTo } from '../middlewares/authMiddleware'; // Middleware to protect routes and restrict access to certain roles
 
