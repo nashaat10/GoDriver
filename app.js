@@ -18,6 +18,7 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again in an hour!",
 });
 
+app.set("trust proxy", true);
 app.use(express.static("./public"));
 app.use(cors());
 app.use(express.json());
