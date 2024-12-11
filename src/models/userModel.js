@@ -21,7 +21,6 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: ["driver", "manager"],
-      default: "driver",
       required: [true, "Please provide a user role"],
     },
     password: {
@@ -76,8 +75,16 @@ const userSchema = new mongoose.Schema(
     },
   },
   {
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
+    toJSON: {
+      virtuals: true,
+      versionKey: false,
+      transform: (doc, ret) => {
+        delete ret.id;
+      },
+    },
+    toObject: {
+      virtuals: true,
+    },
   }
 );
 

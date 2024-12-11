@@ -108,11 +108,6 @@ export const restrictTo = (...roles) => {
 };
 
 export const logout = catchAsync(async (req, res, next) => {
-  // res.cookie("jwt", "loggedout", {
-  //   expires: new Date(Date.now()),
-  //   httpOnly: true,
-  // });
-
   res
     .status(200)
     .json({ status: "success", message: "User logged out successfully" });
