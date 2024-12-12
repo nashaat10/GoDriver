@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 const userSchema = new mongoose.Schema(
   {
@@ -55,8 +56,9 @@ const userSchema = new mongoose.Schema(
     passwordChangedAt: Date,
     profilePicture: {
       type: String,
-      //   required: [true, "Please provide a driver profile picture"],
     },
+    verificationCode: String,
+    passwordResetExpires: Date,
     vehicleId: {
       type: mongoose.Schema.Types.ObjectId,
     },
@@ -110,6 +112,20 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
     return JWTTimestamp < changedTimestamp;
   }
   return false;
+};
+
+userSchema.methods.createVerificationCode = function () {
+  // Generate a 4 digit random number
+  const code = Math.floor(1000 + Math.random() * 9000).toString();
+  // Hash the code
+  this.verificationCode = crypto
+    .createHash("sha256")
+    .update(code)
+    .digest("hex");
+  // Set the expiration date
+  console.log(code, this.verificationCode);
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  return code;
 };
 
 // userSchema.methods.createPasswordResetToken = function () {

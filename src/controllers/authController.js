@@ -4,6 +4,7 @@ import AppError from "../utils/appError.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { promisify } from "util";
+import sendEmail from "../utils/email.js";
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -121,5 +122,60 @@ export const updatePassword = catchAsync(async (req, res, next) => {
   user.password = req.body.newPassword;
   user.passwordConfirm = req.body.passwordConfirm;
   await user.save();
+  createSendToken(user, 200, res);
+});
+
+// implement forget and reset password with email verification and verification code
+export const forgetPassword = catchAsync(async (req, res, next) => {
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return next(new AppError("There is no user with email address.", 404));
+  }
+  const verificationCode = user.createVerificationCode();
+  await user.save({ validateBeforeSave: false });
+  // send email with verification code
+
+  const resetURL = `${req.protocol}://${req.get(
+    "host"
+  )}/api/v1/auth/resetPassword/${verificationCode}`;
+
+  const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+
+  try {
+    // await sendEmail({
+    //   email: user.email,
+    //   subject: "Your password reset code (valid for 10 min)",
+    //   message,
+    // });
+    res.status(200).json({
+      status: "success",
+      message: "Verification code sent to email",
+    });
+  } catch (err) {
+    user.verificationCode = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+    return next(
+      new AppError("There was an error sending the email. Try again later!"),
+      500
+    );
+  }
+});
+
+export const resetPassword = catchAsync(async (req, res, next) => {
+  // 1) Get user based on the verification code
+  const user = await User.findOne({
+    verificationCode: req.body.verificationCode,
+  });
+  if (!user) {
+    return next(new AppError("Verification code is invalid", 400));
+  }
+  // 2) If verification code has not expired, and there is user, set the new password
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.verificationCode = undefined;
+  user.verificationCodeExpires = undefined;
+  await user.save();
+  // 3) Log the user in, send JWT
   createSendToken(user, 200, res);
 });
