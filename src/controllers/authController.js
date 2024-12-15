@@ -36,7 +36,7 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 export const signup = catchAsync(async (req, res, next) => {
-  req.body.role = "manager";
+  // req.body.role = "manager";
   const newUser = await User.create(req.body);
   createSendToken(newUser, 201, res);
 });
@@ -133,27 +133,23 @@ export const forgetPassword = catchAsync(async (req, res, next) => {
   }
   const verificationCode = user.createVerificationCode();
   await user.save({ validateBeforeSave: false });
-  // send email with verification code
-
   const resetURL = `${req.protocol}://${req.get(
     "host"
-  )}/api/v1/auth/resetPassword/${verificationCode}`;
-
+  )}/api/v1/users/resetPassword/${verificationCode}`;
   const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
-
   try {
-    // await sendEmail({
-    //   email: user.email,
-    //   subject: "Your password reset code (valid for 10 min)",
-    //   message,
-    // });
+    await sendEmail({
+      email: user.email,
+      subject: "Your password verification code (valid for 10 min)",
+      message,
+    });
     res.status(200).json({
       status: "success",
-      message: "Verification code sent to email",
+      message: "verification code sent to email!",
     });
   } catch (err) {
     user.verificationCode = undefined;
-    user.passwordResetExpires = undefined;
+    user.verificationCodeExpires = undefined;
     await user.save({ validateBeforeSave: false });
     return next(
       new AppError("There was an error sending the email. Try again later!"),
