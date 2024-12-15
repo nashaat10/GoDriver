@@ -126,22 +126,9 @@ userSchema.methods.createVerificationCode = function () {
     .digest("hex");
   // Set the expiration date
   console.log(code, this.verificationCode);
-  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  this.verificationCodeExpires = Date.now() + 10 * 60 * 1000;
   return code;
 };
-
-// userSchema.methods.createPasswordResetToken = function () {
-//   const resetToken = crypto.randomBytes(32).toString("hex");
-//   this.passwordResetToken = crypto
-//     .createHash("sha256")
-//     .update(resetToken)
-//     .digest("hex");
-
-//   console.log({ resetToken }, this.passwordResetToken);
-
-//   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
-//   return resetToken;
-// };
 
 const User = mongoose.model("User", userSchema);
 
