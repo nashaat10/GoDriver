@@ -11,6 +11,8 @@ const userSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
+      required: [true, "Please provide a driver phone number"],
+      unique: true,
     },
     email: {
       type: String,
@@ -21,7 +23,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["driver", "manager"],
+      enum: ["driver", "manager", "admin"],
       required: [true, "Please provide a user role"],
     },
     password: {
@@ -58,7 +60,7 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
     verificationCode: String,
-    passwordResetExpires: Date,
+    verificationCodeExpires: Date,
     vehicleId: {
       type: mongoose.Schema.Types.ObjectId,
     },
