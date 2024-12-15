@@ -3,6 +3,17 @@ import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
 import multer from "multer";
 import sharp from "sharp";
+// import { v2 as cloudinary } from "cloudinary";
+import cloudinary from "cloudinary";
+import dotenv from "dotenv";
+import stream from "stream";
+
+dotenv.config({ path: "../../config.env" });
+cloudinary.v2.config({
+  cloud_name: "db3rwgkan",
+  api_key: "835868578195358",
+  api_secret: "PZc_rlmffakBBa6tQtonM8blajc",
+});
 
 const multerStorage = multer.memoryStorage();
 
@@ -23,14 +34,35 @@ export const uploadUserPhoto = upload.single("profilePicture");
 
 export const resizeUserPhoto = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
+
+  // Generate the filename
   req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
-  await sharp(req.file.buffer)
+
+  // Process the image buffer with Sharp
+  const buffer = await sharp(req.file.buffer)
     .resize(500, 500)
     .toFormat("jpeg")
     .jpeg({ quality: 90 })
-    .toFile(`public/img/users/${req.file.filename}`);
-  req.body.profilePicture = req.file.filename;
-  next();
+    .toBuffer();
+
+  // Use a PassThrough stream to upload the image buffer to Cloudinary
+  const uploadStream = cloudinary.v2.uploader.upload_stream(
+    { folder: "users", public_id: req.file.filename },
+    (error, result) => {
+      if (error) {
+        return next(new AppError("Error uploading image to Cloudinary", 500));
+      }
+
+      // Set the Cloudinary URL on the request body
+      req.body.profilePicture = result.secure_url;
+      next();
+    }
+  );
+
+  // Pipe the processed image buffer to Cloudinary's upload stream
+  const bufferStream = new stream.PassThrough();
+  bufferStream.end(buffer);
+  bufferStream.pipe(uploadStream);
 });
 
 export const getAllDrivers = catchAsync(async (req, res, next) => {
@@ -122,12 +154,13 @@ export const updateMe = catchAsync(async (req, res, next) => {
       )
     );
   }
-  const filteredBody = filterObj(req.body, "name", "email", "profilePicture");
+  const filteredBody = filterObj(req.body, "name", "phone", "profilePicture");
 
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     new: true,
     runValidators: true,
   });
+
   res.status(200).json({
     status: "success",
     data: {

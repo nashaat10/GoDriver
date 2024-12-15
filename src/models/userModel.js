@@ -1,6 +1,7 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 const userSchema = new mongoose.Schema(
   {
@@ -10,6 +11,8 @@ const userSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
+      required: [true, "Please provide a driver phone number"],
+      unique: true,
     },
     email: {
       type: String,
@@ -20,8 +23,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["driver", "manager"],
-      default: "driver",
+      enum: ["driver", "manager", "admin"],
       required: [true, "Please provide a user role"],
     },
     password: {
@@ -56,8 +58,9 @@ const userSchema = new mongoose.Schema(
     passwordChangedAt: Date,
     profilePicture: {
       type: String,
-      //   required: [true, "Please provide a driver profile picture"],
     },
+    verificationCode: String,
+    verificationCodeExpires: Date,
     vehicleId: {
       type: mongoose.Schema.Types.ObjectId,
     },
@@ -76,8 +79,16 @@ const userSchema = new mongoose.Schema(
     },
   },
   {
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
+    toJSON: {
+      virtuals: true,
+      versionKey: false,
+      transform: (doc, ret) => {
+        delete ret.id;
+      },
+    },
+    toObject: {
+      virtuals: true,
+    },
   }
 );
 
@@ -105,17 +116,18 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   return false;
 };
 
-userSchema.methods.createPasswordResetToken = function () {
-  const resetToken = crypto.randomBytes(32).toString("hex");
-  this.passwordResetToken = crypto
+userSchema.methods.createVerificationCode = function () {
+  // Generate a 4 digit random number
+  const code = Math.floor(1000 + Math.random() * 9000).toString();
+  // Hash the code
+  this.verificationCode = crypto
     .createHash("sha256")
-    .update(resetToken)
+    .update(code)
     .digest("hex");
-
-  console.log({ resetToken }, this.passwordResetToken);
-
-  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
-  return resetToken;
+  // Set the expiration date
+  console.log(code, this.verificationCode);
+  this.verificationCodeExpires = Date.now() + 10 * 60 * 1000;
+  return code;
 };
 
 const User = mongoose.model("User", userSchema);

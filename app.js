@@ -43,10 +43,16 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again in an hour!",
 });
 
+app.set("trust proxy", true);
 app.use(express.static("./public"));
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
+
+app.get("/health", (_req, res) => {
+  res.sendStatus(200);
+});
+
 app.use("/api", limiter);
 
 app.use("/api/v1/tasks", taskRoutes);
@@ -54,7 +60,6 @@ app.use("/api/v1/tasks", taskRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/manager", userRoutes);
 app.use("/api/v1/driver", userRoutes);
-app.use("/api/v1/alerts", alertRoutes);
 // Redis connection
 redisClient.connect();
 

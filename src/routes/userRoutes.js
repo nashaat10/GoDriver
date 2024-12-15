@@ -10,8 +10,11 @@ router.use(authController.protect);
 
 router
   .route("/drivers")
-  .get(authController.restrictTo("manager"), userController.getAllDrivers)
-  .post(authController.restrictTo("manager"), userController.createDriver);
+  .get(
+    authController.restrictTo("admin", "manager"),
+    userController.getAllDrivers
+  )
+  .post(authController.restrictTo("admin"), userController.createDriver);
 
 router.route("/me").get(userController.getMe, userController.getUser);
 router
@@ -23,7 +26,7 @@ router
   );
 router.route("/deleteMe").patch(userController.deleteMe);
 
-router.use(authController.restrictTo("manager"));
+router.use(authController.restrictTo("admin", "manager"));
 router
   .route("/drivers/:id")
   .get(userController.getUser)
