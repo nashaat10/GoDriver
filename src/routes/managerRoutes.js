@@ -7,6 +7,7 @@ import catchAsync from "../utils/catchAsync.js"; // Import catchAsync utility
 const router = express.Router();
 
 router.use(authController.protect);
+router.use(authController.restrictTo("manager"));
 
 router.route("/me").get(userController.getMe, userController.getUser);
 router

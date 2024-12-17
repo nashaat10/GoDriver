@@ -5,12 +5,8 @@ import express from "express";
 const router = express.Router();
 
 router.use(authController.protect);
-router.use(authController.restrictTo("admin"));
 
-router
-  .route("/drivers")
-  .get(userController.getAllDrivers)
-  .post(userController.createDriver);
+router.use(authController.restrictTo("driver"));
 
 router.route("/me").get(userController.getMe, userController.getUser);
 router
@@ -21,11 +17,5 @@ router
     userController.updateMe
   );
 router.route("/deleteMe").patch(userController.deleteMe);
-
-router
-  .route("/drivers/:id")
-  .get(userController.getUser)
-  .patch(userController.updateDriver)
-  .delete(userController.deleteDriver);
 
 export default router;
