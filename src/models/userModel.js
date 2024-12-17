@@ -21,6 +21,9 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       validate: [validator.isEmail, "Please provide a valid email"],
     },
+    profilePicture: {
+      type: String,
+    },
     role: {
       type: String,
       enum: ["driver", "manager", "admin"],
@@ -56,9 +59,6 @@ const userSchema = new mongoose.Schema(
       },
     },
     passwordChangedAt: Date,
-    profilePicture: {
-      type: String,
-    },
     verificationCode: String,
     verificationCodeExpires: Date,
     vehicleId: {
