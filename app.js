@@ -62,7 +62,9 @@ app.use("/api/v1/manager", userRoutes);
 app.use("/api/v1/driver", userRoutes);
 app.use("/api/v1/admin", userRoutes);
 // Redis connection
+app.use("/api/v1/alerts", alertRoutes);
 redisClient.connect();
+//routes
 
 // Sockets
 
