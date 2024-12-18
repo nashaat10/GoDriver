@@ -28,7 +28,7 @@ export const io = new Server(server, {
   },
 });
 
-//socketio connection handling
+//socket io connection handling
 io.on("connection", (socket) => {
   console.log("Client connected");
 
