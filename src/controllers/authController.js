@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import { promisify } from "util";
 import sendEmail from "../utils/email.js";
 import dotenv from "dotenv";
+import crypto from "crypto";
 
 dotenv.config({ path: "../../config.env" });
 
@@ -162,20 +163,56 @@ export const forgetPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-export const resetPassword = catchAsync(async (req, res, next) => {
-  // 1) Get user based on the verification code
-  const user = await User.findOne({
-    verificationCode: req.body.verificationCode,
-  });
+export const verifyOTP = catchAsync(async (req, res, next) => {
+  const { email, otp } = req.body;
+
+  // Find user by email
+  const user = await User.findOne({ email });
   if (!user) {
-    return next(new AppError("Verification code is invalid", 400));
+    return next(new AppError("User not found.", 404));
   }
-  // 2) If verification code has not expired, and there is user, set the new password
-  user.password = req.body.password;
-  user.passwordConfirm = req.body.passwordConfirm;
+
+  // un hash the code and compare it with the one in the database
+  const hashedCode = crypto.createHash("sha256").update(otp).digest("hex");
+  if (
+    user.verificationCode !== hashedCode ||
+    user.verificationCodeExpires < Date.now()
+  ) {
+    return next(new AppError("Invalid or expired OTP.", 400));
+  }
+
+  // OTP is valid, proceed with the next steps (e.g., reset password)
+
+  res.status(200).json({
+    status: "success",
+    message: "OTP verified successfully.",
+  });
+});
+
+export const resetPassword = catchAsync(async (req, res, next) => {
+  const { email, password, passwordConfirm, otp } = req.body;
+
+  // Find user by email
+  const user = await User.findOne({ email });
+  if (!user) {
+    return next(new AppError("User not found.", 404));
+  }
+
+  const hashedCode = crypto.createHash("sha256").update(otp).digest("hex");
+  if (
+    user.verificationCode !== hashedCode ||
+    user.verificationCodeExpires < Date.now()
+  ) {
+    return next(new AppError("Invalid or expired OTP.", 400));
+  }
+
+  // Update password
+  user.password = password;
+  user.passwordConfirm = passwordConfirm;
   user.verificationCode = undefined;
   user.verificationCodeExpires = undefined;
   await user.save();
-  // 3) Log the user in, send JWT
+
+  // Log the user in, send JWT
   createSendToken(user, 200, res);
 });
