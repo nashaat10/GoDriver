@@ -9,6 +9,8 @@ const io = new Server(server, {
         origin: "*", // Configure according to your needs
         methods: ["GET", "POST"]
     }
+
+
 });
 
 io.on('connection', (socket) => {
@@ -18,3 +20,5 @@ io.on('connection', (socket) => {
         console.log('Client disconnected');
     });
 });
+
+server.listen(3000)

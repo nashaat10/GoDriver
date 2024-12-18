@@ -57,4 +57,20 @@ router.get('/type/:alertType', catchAsync(async (req, res) => {
     });
 }));
 
+router.post("/trigger-alert", (req, res) => {
+    const alertData = req.body; // Assume alert data is sent in the request body
+
+    // Emit the alert through sockets
+    io.emit("alert", alertData, (ack) => {
+      if (ack) {
+        console.log("Alert sent successfully:", alertData);
+        res.status(200).json({ status: "success", message: "Alert sent successfully" });
+      } else {
+        console.error("Failed to send alert:", alertData);
+        res.status(500).json({ status: "error", message: "Failed to send alert" });
+      }
+    });
+  });
+
+
 export default router;
