@@ -5,12 +5,38 @@ import cors from "cors";
 import AppError from "./src/utils/appError.js";
 import globalErrorHandler from "./src/controllers/errorController.js";
 import taskRoutes from "./src/routes/taskRoutes.js";
-// import redisClient from "./src/config/redis.js";
-import vehicleRoutes from "./src/routes/vehicleRoutes.js";
+import redisClient from "./src/config/redis.js";
+import alertRoutes from "./src/routes/alertsRoutes.js";
 import authRoutes from "./src/routes/authRoutes.js";
-import userRoutes from "./src/routes/userRoutes.js";
+import vehicleRoutes from "./src/routes/vehicleRoutes.js";
+import managerRoutes from "./src/routes/managerRoutes.js";
+import adminRoutes from "./src/routes/adminRoutes.js";
+import driverRoutes from "./src/routes/driverRoutes.js";
+import http from "http";
+import { Server } from "socket.io";
 
 const app = express();
+
+//create http server
+const server = http.createServer(app);
+
+//create socket server
+export const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
+
+//socket io connection handling
+io.on("connection", (socket) => {
+  console.log("Client connected");
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
+});
+
 // add route limit
 const limiter = rateLimit({
   max: 100,
@@ -33,11 +59,13 @@ app.use("/api", limiter);
 app.use("/api/v1/tasks", taskRoutes);
 app.use("/api/v1/vehicles", vehicleRoutes);
 app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/manager", userRoutes);
-app.use("/api/v1/driver", userRoutes);
-app.use("/api/v1/admin", userRoutes);
+app.use("/api/v1/driver", driverRoutes);
+app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/manager", managerRoutes);
 // Redis connection
-// redisClient.connect();
+app.use("/api/v1/alerts", alertRoutes);
+redisClient.connect();
+//routes
 
 // Sockets
 
@@ -46,4 +74,4 @@ app.all("*", (req, res, next) => {
 });
 app.use(globalErrorHandler);
 
-export default app;
+export default server;
