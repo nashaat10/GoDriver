@@ -8,6 +8,7 @@ import taskRoutes from "./src/routes/taskRoutes.js";
 import redisClient from "./src/config/redis.js";
 import alertRoutes from "./src/routes/alertsRoutes.js";
 import authRoutes from "./src/routes/authRoutes.js";
+import vehicleRoutes from "./src/routes/vehicleRoutes.js";
 import managerRoutes from "./src/routes/managerRoutes.js";
 import adminRoutes from "./src/routes/adminRoutes.js";
 import driverRoutes from "./src/routes/driverRoutes.js";
@@ -56,7 +57,7 @@ app.get("/health", (_req, res) => {
 app.use("/api", limiter);
 
 app.use("/api/v1/tasks", taskRoutes);
-// app.use("/api/v1/vehicles", vehicleRoutes);
+app.use("/api/v1/vehicles", vehicleRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/driver", driverRoutes);
 app.use("/api/v1/admin", adminRoutes);
