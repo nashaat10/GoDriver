@@ -1,8 +1,6 @@
 import * as authController from "../controllers/authController.js";
 import * as userController from "../controllers/userController.js";
 import express from "express";
-import User from "../models/userModel.js"; // Import the User model
-import catchAsync from "../utils/catchAsync.js"; // Import catchAsync utility
 
 const router = express.Router();
 
