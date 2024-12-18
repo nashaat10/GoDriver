@@ -192,7 +192,6 @@ export const verifyOTP = catchAsync(async (req, res, next) => {
 export const resetPassword = catchAsync(async (req, res, next) => {
   const { email, password, passwordConfirm, otp } = req.body;
 
-  // Find user by email
   const user = await User.findOne({ email });
   if (!user) {
     return next(new AppError("User not found.", 404));
@@ -206,13 +205,11 @@ export const resetPassword = catchAsync(async (req, res, next) => {
     return next(new AppError("Invalid or expired OTP.", 400));
   }
 
-  // Update password
   user.password = password;
   user.passwordConfirm = passwordConfirm;
   user.verificationCode = undefined;
   user.verificationCodeExpires = undefined;
   await user.save();
 
-  // Log the user in, send JWT
   createSendToken(user, 200, res);
 });
