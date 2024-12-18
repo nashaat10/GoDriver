@@ -5,7 +5,7 @@ import cors from "cors";
 import AppError from "./src/utils/appError.js";
 import globalErrorHandler from "./src/controllers/errorController.js";
 import taskRoutes from "./src/routes/taskRoutes.js";
-import redisClient from "./src/config/redis.js";
+// import redisClient from "./src/config/redis.js";
 import alertRoutes from "./src/routes/alertsRoutes.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import vehicleRoutes from "./src/routes/vehicleRoutes.js";
@@ -64,7 +64,7 @@ app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/manager", managerRoutes);
 // Redis connection
 app.use("/api/v1/alerts", alertRoutes);
-redisClient.connect();
+// redisClient.connect();
 //routes
 
 // Sockets
