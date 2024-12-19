@@ -65,8 +65,10 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
     },
     clientId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
+      required: [true, "Please provide a client id"],
     },
+
     createdAt: {
       type: Date,
       default: Date.now(),
@@ -88,6 +90,10 @@ const userSchema = new mongoose.Schema(
     },
     toObject: {
       virtuals: true,
+      versionKey: false,
+      transform: (doc, ret) => {
+        delete ret.id;
+      },
     },
   }
 );
@@ -103,6 +109,15 @@ userSchema.pre(/^find/, function (next) {
   this.find({ active: { $ne: false } });
   next();
 });
+
+// don't return password in response when user is created
+userSchema.methods.toJSON = function () {
+  const userObject = this.toObject();
+  delete userObject.password;
+  delete userObject.confirmPassword;
+  delete userObject.__v;
+  return userObject;
+};
 
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   if (this.passwordChangedAt) {
