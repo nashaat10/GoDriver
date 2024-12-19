@@ -1,5 +1,4 @@
 import catchAsync from "../utils/catchAsync.js";
-import AppError from "../utils/appError.js";
 import Client from "../models/clientModel.js";
 import User from "../models/userModel.js";
 
