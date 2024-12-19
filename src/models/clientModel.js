@@ -6,19 +6,18 @@ const clientSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
-    admin: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
   },
-  { toJSON: { virtuals: true }, toObject: { virtuals: true } }
+  {
+    toJSON: {
+      virtuals: true,
+      versionKey: false,
+      transform: function (doc, ret) {
+        delete ret._id;
+      },
+    },
+    toObject: { virtuals: true },
+  }
 );
-
-clientSchema.pre(/^find/, function (next) {
-  this.populate({ path: "admin", match: { role: "admin" }, select: "name" });
-  next();
-});
 
 const Client = mongoose.model("Client", clientSchema);
 
