@@ -26,6 +26,8 @@ io.on('connection', socket => {
             const alertQueue = 'alerts';
             channel.assertQueue(alertQueue);
 
+
+            console.log("Consuming alert messages from the alert queue");
             // Consume alert messages from the alert queue
             channel.consume(alertQueue, (msg) => {
                 if (msg !== null) {
