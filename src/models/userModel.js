@@ -64,6 +64,9 @@ const userSchema = new mongoose.Schema(
     vehicleId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Vehicle",
+      required: function () {
+        return this.role === "driver";
+      },
     },
     clientId: {
       type: String,

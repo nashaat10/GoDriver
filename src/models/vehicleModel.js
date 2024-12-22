@@ -8,7 +8,6 @@ const vehicleSchema = new mongoose.Schema(
     driverId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
     plateNumber: { type: String, required: true, unique: true }, // Assuming there's a 'Driver' model
   },
