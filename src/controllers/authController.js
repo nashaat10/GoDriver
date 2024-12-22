@@ -5,6 +5,10 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { promisify } from "util";
 import sendEmail from "../utils/email.js";
+import dotenv from "dotenv";
+import crypto from "crypto";
+
+dotenv.config({ path: "../../config.env" });
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -125,7 +129,6 @@ export const updatePassword = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
-// implement forget and reset password with email verification and verification code
 export const forgetPassword = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
@@ -133,24 +136,26 @@ export const forgetPassword = catchAsync(async (req, res, next) => {
   }
   const verificationCode = user.createVerificationCode();
   await user.save({ validateBeforeSave: false });
-  const resetURL = `${req.protocol}://${req.get(
-    "host"
-  )}/api/v1/users/resetPassword/${verificationCode}`;
-  const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+
+  const message = `Forgot your password? Use the following verification code to reset your password: ${verificationCode}.\nIf you didn't forget your password, please ignore this email!`;
+
   try {
-    // await sendEmail({
-    //   email: user.email,
-    //   subject: "Your password verification code (valid for 10 min)",
-    //   message,
-    // });
+    await sendEmail({
+      from: process.env.EMAIL_FROM,
+      to: user.email,
+      subject: "Your password verification code (valid for 10 min)",
+      message,
+      otp: verificationCode,
+    });
     res.status(200).json({
       status: "success",
-      message: "verification code sent to email!",
+      message: "Verification code sent to email!",
     });
   } catch (err) {
     user.verificationCode = undefined;
     user.verificationCodeExpires = undefined;
     await user.save({ validateBeforeSave: false });
+    console.log(err);
     return next(
       new AppError("There was an error sending the email. Try again later!"),
       500
@@ -158,20 +163,53 @@ export const forgetPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-export const resetPassword = catchAsync(async (req, res, next) => {
-  // 1) Get user based on the verification code
-  const user = await User.findOne({
-    verificationCode: req.body.verificationCode,
-  });
+export const verifyOTP = catchAsync(async (req, res, next) => {
+  const { email, otp } = req.body;
+
+  // Find user by email
+  const user = await User.findOne({ email });
   if (!user) {
-    return next(new AppError("Verification code is invalid", 400));
+    return next(new AppError("User not found.", 404));
   }
-  // 2) If verification code has not expired, and there is user, set the new password
-  user.password = req.body.password;
-  user.passwordConfirm = req.body.passwordConfirm;
+
+  // un hash the code and compare it with the one in the database
+  const hashedCode = crypto.createHash("sha256").update(otp).digest("hex");
+  if (
+    user.verificationCode !== hashedCode ||
+    user.verificationCodeExpires < Date.now()
+  ) {
+    return next(new AppError("Invalid or expired OTP.", 400));
+  }
+
+  // OTP is valid, proceed with the next steps (e.g., reset password)
+
+  res.status(200).json({
+    status: "success",
+    message: "OTP verified successfully.",
+  });
+});
+
+export const resetPassword = catchAsync(async (req, res, next) => {
+  const { email, password, passwordConfirm, otp } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return next(new AppError("User not found.", 404));
+  }
+
+  const hashedCode = crypto.createHash("sha256").update(otp).digest("hex");
+  if (
+    user.verificationCode !== hashedCode ||
+    user.verificationCodeExpires < Date.now()
+  ) {
+    return next(new AppError("Invalid or expired OTP.", 400));
+  }
+
+  user.password = password;
+  user.passwordConfirm = passwordConfirm;
   user.verificationCode = undefined;
   user.verificationCodeExpires = undefined;
   await user.save();
-  // 3) Log the user in, send JWT
+
   createSendToken(user, 200, res);
 });
