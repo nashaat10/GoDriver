@@ -40,12 +40,12 @@ io.on("connection", (socket) => {
 
 // add route limit
 const limiter = rateLimit({
-  max: 100,
+  max: 1000,
   windowMs: 60 * 60 * 1000,
   message: "Too many requests from this IP, please try again in an hour!",
 });
 
-// app.set("trust proxy", true);
+app.set("trust proxy", true);
 app.use(express.static("./public"));
 app.use(cors());
 app.use(express.json());

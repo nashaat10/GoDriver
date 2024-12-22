@@ -29,7 +29,6 @@ export const createVehicle = catchAsync(async (req, res, next) => {
   });
 
   const savedVehicle = await vehicle.save();
-  await Driver.findByIdAndUpdate(driverId, { vehicleId: savedVehicle._id });
   res.status(201).json({
     status: "success",
     data: {

@@ -10,7 +10,7 @@ const vehicleSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    plateNumber: { type: String, required: true }, // Assuming there's a 'Driver' model
+    plateNumber: { type: String, required: true, unique: true }, // Assuming there's a 'Driver' model
   },
   { timestamps: true },
   {
