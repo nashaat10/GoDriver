@@ -1,15 +1,45 @@
 import express from 'express';
 import Vehicle from '../models/vehicleModel.js';  // Import the Vehicle model
-import { getVehicleData, searchVehicleByPlateNumber , createVehicle } from '../controllers/vehicleController.js';
+
+import { getVehicleData, searchVehicleByPlateNumber , createVehicle, getAllVehicles } from '../controllers/vehicleController.js';
+
+
 
 const router = express.Router();
 
+router.route('/').get(getAllVehicles).post(createVehicle);
 // Get vehicle by ID
 router.get('/:id', getVehicleData);
 
 // Create a new vehicle
+
+router.post('/', async (req, res) => {
+  try {
+    const { make, model, year, driverId, plateNumber } = req.body;
+
+    // Create a new vehicle document
+    const vehicle = new Vehicle({
+      make,
+      model,
+      year,
+      driverId,
+      plateNumber,
+    });
+
+    const savedVehicle = await vehicle.save();
+
+    res.status(201).json({
+      message: 'Vehicle created successfully',
+      vehicle: savedVehicle,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create vehicle', details: error.message });
+  }
+});
+
+
 router.post('/', createVehicle);
-    
+
 // Search for a vehicle by plate number
 router.get('/search/:plateNumber', searchVehicleByPlateNumber);
 
