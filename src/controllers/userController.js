@@ -136,6 +136,7 @@ export const deleteDriver = catchAsync(async (req, res, next) => {
   }
   res.status(204).json({
     status: "success",
+    message: "Driver deleted successfully",
     data: null,
   });
 });
