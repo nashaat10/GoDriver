@@ -3,12 +3,10 @@ import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
 import Driver from "../models/userModel.js";
 
-
-
 export const getAllVehicles = catchAsync(async (req, res, next) => {
-  const vehicles = await Vehicle.find();
+  const vehicles = await Vehicle.find().populate("driverId");
   res.status(200).json({
-    status: 'success',
+    status: "success",
     results: vehicles.length,
     data: {
       vehicles,
@@ -17,7 +15,7 @@ export const getAllVehicles = catchAsync(async (req, res, next) => {
 });
 // Get vehicle by ID
 export const getVehicleData = catchAsync(async (req, res, next) => {
-  const vehicle = await Vehicle.findById(req.params.id);
+  const vehicle = await Vehicle.findById(req.params.id).populate("driverId");
   if (!vehicle) {
     return next(new AppError("No vehicle found with that ID", 404));
   }
