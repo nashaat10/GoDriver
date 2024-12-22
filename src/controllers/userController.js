@@ -134,10 +134,9 @@ export const deleteDriver = catchAsync(async (req, res, next) => {
   if (!driver) {
     return next(new AppError("No driver found with that ID", 404));
   }
-  res.status(204).json({
+  res.status(200).json({
     status: "success",
     message: "Driver deleted successfully",
-    data: null,
   });
 });
 
