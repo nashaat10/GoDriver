@@ -63,6 +63,7 @@ const userSchema = new mongoose.Schema(
     verificationCodeExpires: Date,
     vehicleId: {
       type: mongoose.Schema.Types.ObjectId,
+      ref: "Vehicle",
     },
     clientId: {
       type: String,
@@ -107,6 +108,13 @@ userSchema.pre("save", async function (next) {
 
 userSchema.pre(/^find/, function (next) {
   this.find({ active: { $ne: false } });
+  next();
+});
+userSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "vehicleId",
+    select: "brand model year plateNumber",
+  });
   next();
 });
 

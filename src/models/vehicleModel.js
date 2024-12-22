@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const vehicleSchema = new mongoose.Schema(
   {
-    brand: { type: String, required: true },
+    brand: { type: String },
     model: { type: String, required: true },
     year: { type: Number, required: true },
     driverId: {
@@ -12,8 +12,14 @@ const vehicleSchema = new mongoose.Schema(
     },
     plateNumber: { type: String, required: true }, // Assuming there's a 'Driver' model
   },
-  { timestamps: true }
+  { timestamps: true },
+  {
+    toJSON: { virtuals: true, versionKey: false },
+    toObject: { virtuals: true, versionKey: false },
+  }
 );
+
+vehicleSchema.index({ driverId: 1, plateNumber: 1 });
 
 const Vehicle = mongoose.model("Vehicle", vehicleSchema);
 // export def

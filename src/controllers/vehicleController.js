@@ -1,15 +1,16 @@
-import Vehicle from '../models/vehicleModel.js';
-import catchAsync from '../utils/catchAsync.js';
-import AppError from '../utils/appError.js';
+import Vehicle from "../models/vehicleModel.js";
+import catchAsync from "../utils/catchAsync.js";
+import AppError from "../utils/appError.js";
+import Driver from "../models/userModel.js";
 
 // Get vehicle by ID
 export const getVehicleData = catchAsync(async (req, res, next) => {
-  const vehicle = await Vehicle.findById(req.params.id).populate('driverId', 'name');
+  const vehicle = await Vehicle.findById(req.params.id);
   if (!vehicle) {
-    return next(new AppError('No vehicle found with that ID', 404));
+    return next(new AppError("No vehicle found with that ID", 404));
   }
   res.status(200).json({
-    status: 'success',
+    status: "success",
     data: {
       vehicle,
     },
@@ -18,9 +19,9 @@ export const getVehicleData = catchAsync(async (req, res, next) => {
 
 // Create a new vehicle
 export const createVehicle = catchAsync(async (req, res, next) => {
-  const { make, model, year, driverId, plateNumber } = req.body;
+  const { brand, model, year, driverId, plateNumber } = req.body;
   const vehicle = new Vehicle({
-    make,
+    brand,
     model,
     year,
     driverId,
@@ -28,8 +29,9 @@ export const createVehicle = catchAsync(async (req, res, next) => {
   });
 
   const savedVehicle = await vehicle.save();
+  await Driver.findByIdAndUpdate(driverId, { vehicleId: savedVehicle._id });
   res.status(201).json({
-    status: 'success',
+    status: "success",
     data: {
       vehicle: savedVehicle,
     },
@@ -42,11 +44,11 @@ export const searchVehicleByPlateNumber = catchAsync(async (req, res, next) => {
   const vehicle = await Vehicle.findOne({ plateNumber });
 
   if (!vehicle) {
-    return next(new AppError('No vehicle found with that plate number', 404));
+    return next(new AppError("No vehicle found with that plate number", 404));
   }
 
   res.status(200).json({
-    status: 'success',
+    status: "success",
     data: {
       vehicle,
     },
