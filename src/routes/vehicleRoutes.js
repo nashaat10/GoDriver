@@ -1,11 +1,8 @@
 import express from 'express';
 import Vehicle from '../models/vehicleModel.js';  // Import the Vehicle model
 
-import { getVehicleData } from '../controllers/vehicleController.js';
-
 import { getVehicleData, searchVehicleByPlateNumber , createVehicle, getAllVehicles } from '../controllers/vehicleController.js';
 
-import { getVehicleData, searchVehicleByPlateNumber , createVehicle } from '../controllers/vehicleController.js';
 
 
 const router = express.Router();
