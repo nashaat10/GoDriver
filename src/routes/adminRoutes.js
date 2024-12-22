@@ -25,7 +25,11 @@ router.route("/deleteMe").patch(userController.deleteMe);
 router
   .route("/drivers/:id")
   .get(userController.getUser)
-  .patch(userController.updateDriver)
+  .patch(
+    userController.uploadUserPhoto,
+    userController.resizeUserPhoto,
+    userController.updateDriver
+  )
   .delete(userController.deleteDriver);
 
 export default router;
