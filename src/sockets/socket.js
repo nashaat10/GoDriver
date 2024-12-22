@@ -1,7 +1,7 @@
-import amqp from "amqplib/callback_api";
+import amqp from "amqplib/callback_api.js";
 import { Server } from "socket.io";
 import http from "http";
-import app from './app.js';
+import app from '../../app.js';
 
 const server = http.createServer(app);
 
