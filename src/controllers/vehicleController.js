@@ -2,6 +2,18 @@ import Vehicle from '../models/vehicleModel.js';
 import catchAsync from '../utils/catchAsync.js';
 import AppError from '../utils/appError.js';
 
+
+
+export const getAllVehicles = catchAsync(async (req, res, next) => {
+  const vehicles = await Vehicle.find();
+  res.status(200).json({
+    status: 'success',
+    results: vehicles.length,
+    data: {
+      vehicles,
+    },
+  });
+});
 // Get vehicle by ID
 export const getVehicleData = catchAsync(async (req, res, next) => {
   const vehicle = await Vehicle.findById(req.params.id).populate('driverId', 'name');
