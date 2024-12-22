@@ -35,5 +35,9 @@
     "stream": "^0.0.3",
     "twilio": "^5.4.0",
     "validator": "^13.12.0"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.8",
+    "utf-8-validate": "^6.0.5"
   }
 }

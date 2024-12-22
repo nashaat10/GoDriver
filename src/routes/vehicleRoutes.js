@@ -1,6 +1,6 @@
 import express from 'express';
 import Vehicle from '../models/vehicleModel.js';  // Import the Vehicle model
-import { getVehicleData } from '../controllers/vehicleController.js';
+import { getVehicleData, searchVehicleByPlateNumber , createVehicle } from '../controllers/vehicleController.js';
 
 const router = express.Router();
 
@@ -8,50 +8,10 @@ const router = express.Router();
 router.get('/:id', getVehicleData);
 
 // Create a new vehicle
-router.post('/', async (req, res) => {
-  try {
-    const { make, model, year, driverId, plateNumber } = req.body;
-
-    // Create a new vehicle document
-    const vehicle = new Vehicle({
-      make,
-      model,
-      year,
-      driverId,
-      plateNumber,
-    });
-
-    const savedVehicle = await vehicle.save();
-
-    res.status(201).json({
-      message: 'Vehicle created successfully',
-      vehicle: savedVehicle,
-    });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create vehicle', details: error.message });
-  }
-});
-
+router.post('/', createVehicle);
+    
 // Search for a vehicle by plate number
-router.get('/search/:plateNumber', async (req, res) => {
-  try {
-    const { plateNumber } = req.params;
-    const vehicle = await Vehicle.findOne({ plateNumber });
-
-    if (!vehicle) {
-      return res.status(404).json({ message: 'Vehicle not found' });
-    }
-
-    res.status(200).json({
-      status: 'success',
-      data: {
-        vehicle
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to search for vehicle', details: error.message });
-  }
-});
+router.get('/search/:plateNumber', searchVehicleByPlateNumber);
 
 
 // router.get('/search/driver/:name', async (req, res) => {

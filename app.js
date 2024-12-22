@@ -12,6 +12,7 @@ import vehicleRoutes from "./src/routes/vehicleRoutes.js";
 import managerRoutes from "./src/routes/managerRoutes.js";
 import adminRoutes from "./src/routes/adminRoutes.js";
 import driverRoutes from "./src/routes/driverRoutes.js";
+import clientRoutes from "./src/routes/clientRoutes.js";
 import http from "http";
 import { Server } from "socket.io";
 
@@ -62,7 +63,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/driver", driverRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/manager", managerRoutes);
-// Redis connection
+app.use("/api/v1/client", clientRoutes);
 app.use("/api/v1/alerts", alertRoutes);
 // redisClient.connect();
 //routes

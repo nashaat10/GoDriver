@@ -8,7 +8,8 @@ const generateVehicleData = async () => {
         // Connect to RabbitMQ
         const connection = await amqp.connect("amqp://localhost");
         const channel = await connection.createChannel();
-
+        const lat= parseFloat((Math.random() * (26.3 - 25.8) + 25.8).toFixed(6));
+        const lon= parseFloat((Math.random() * (50.7 - 50.3) + 50.3).toFixed(6));
         const queue = "vehicle_data";
         const alertQueue = "alerts";
         await channel.assertQueue(queue);
@@ -19,10 +20,7 @@ const generateVehicleData = async () => {
                 fuelLevel: Math.floor(Math.random() * 100),
                 location: {
                     type: "Point",
-                    coordinates: [
-                        parseFloat((Math.random() * (31.3 - 30.9) + 30.9).toFixed(6)), // Longitude
-                        parseFloat((Math.random() * (30.1 - 29.8) + 29.8).toFixed(6)), // Latitude
-                    ],
+                    coordinates: [lat,lon],
                 },
                 timestamp: new Date().toISOString(),
                 alerts: []
