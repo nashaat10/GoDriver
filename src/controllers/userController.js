@@ -3,10 +3,10 @@ import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
 import multer from "multer";
 import sharp from "sharp";
-// import { v2 as cloudinary } from "cloudinary";
 import cloudinary from "cloudinary";
 import dotenv from "dotenv";
 import stream from "stream";
+import APIFeatures from "../utils/apiFeatures.js";
 
 dotenv.config({ path: "../../config.env" });
 cloudinary.v2.config({
@@ -136,6 +136,7 @@ export const deleteDriver = catchAsync(async (req, res, next) => {
   }
   res.status(204).json({
     status: "success",
+    message: "Driver deleted successfully",
     data: null,
   });
 });
