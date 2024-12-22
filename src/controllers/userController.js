@@ -182,14 +182,17 @@ export const deleteMe = catchAsync(async (req, res, next) => {
 
 export const searchDriversByName = catchAsync(async (req, res, next) => {
   const { name } = req.params;
-  const drivers = await User.find({ name: new RegExp(name, 'i'), role: 'driver' });
+  const drivers = await User.find({
+    name: new RegExp(name, "i"),
+    role: "driver",
+  });
 
   if (drivers.length === 0) {
-    return next(new AppError('No drivers found with that name', 404));
+    return next(new AppError("No drivers found with that name", 404));
   }
 
   res.status(200).json({
-    status: 'success',
+    status: "success",
     results: drivers.length,
     data: {
       drivers,
