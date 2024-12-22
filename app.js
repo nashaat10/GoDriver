@@ -49,9 +49,7 @@ app.get("/health", (_req, res) => {
   res.sendStatus(200);
 });
 
-
 app.use("/api", limiter);
-
 // Routes
 app.use("/api/v1/tasks", taskRoutes);
 
