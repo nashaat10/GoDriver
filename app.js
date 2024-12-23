@@ -25,8 +25,12 @@ app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
 // Enable CORS
-app.use(cors());
-app.options("*", cors());
+app.use(cors({
+  origin: "*",  // In production, specify your frontend domain
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  credentials: true
+}));
+// app.options("*", cors());
 
 
 
@@ -49,9 +53,7 @@ app.get("/health", (_req, res) => {
   res.sendStatus(200);
 });
 
-
 app.use("/api", limiter);
-
 // Routes
 app.use("/api/v1/tasks", taskRoutes);
 

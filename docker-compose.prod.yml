@@ -1,0 +1,9 @@
+version: "3.7"
+services:
+  node:
+    build:
+      context: .
+      target: production
+    environment:
+      - NODE_ENV=production
+    command: npm run start:prod

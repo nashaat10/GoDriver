@@ -25,6 +25,7 @@ router.post("/", async (req, res) => {
 
     // Create a new vehicle document
     const vehicle = new Vehicle({
+      
       make,
       model,
       year,
