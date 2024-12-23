@@ -6,6 +6,7 @@ import sharp from "sharp";
 import cloudinary from "cloudinary";
 import dotenv from "dotenv";
 import stream from "stream";
+import Vehicle from "../models/vehicleModel.js";
 import APIFeatures from "../utils/apiFeatures.js";
 
 dotenv.config({ path: "../../config.env" });
@@ -92,6 +93,21 @@ export const getUser = catchAsync(async (req, res, next) => {
 export const createDriver = catchAsync(async (req, res, next) => {
   const driverData = { ...req.body, createdBy: req.user.id };
   const driver = await User.create(driverData);
+
+  // Assign the driver to a vehicle if a vehicle ID is provided
+  const vehicleId = req.body.vehicleId;
+  if (vehicleId) {
+    const vehicle = await Vehicle.findByIdAndUpdate(
+      vehicleId,
+      { driverId: driver._id },
+      { new: true }
+    );
+
+    if (!vehicle) {
+      return next(new AppError("No vehicle found with that ID", 404));
+    }
+  }
+
   res.status(201).json({
     status: "success",
     data: {
