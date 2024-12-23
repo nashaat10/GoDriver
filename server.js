@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import http from "http";
 import { initSocket } from './src/config/socket.js';
 import { setupAlertHandlers } from './src/sockets/alertHandler.js';
+import { setupSocketHandlers } from './src/sockets/socket.js';
 
 dotenv.config({ path: "./config.env" });
 
@@ -14,6 +15,7 @@ const server = http.createServer(app);
 const io = initSocket(server);
 
 // Setup alert handlers
+setupSocketHandlers();
 setupAlertHandlers();
 
 const DB = process.env.DATABASE_URL;
