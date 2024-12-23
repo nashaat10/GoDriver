@@ -1,6 +1,5 @@
-version: "3.7"
 services:
-  node:
+  node-app:
     build:
       context: .
       target: production

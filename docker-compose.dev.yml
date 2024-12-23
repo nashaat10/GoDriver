@@ -1,11 +1,8 @@
-version: "3.7"
 services:
-  app:
+  node-app:
     build:
       context: .
-      dockerfile: Dockerfile.dev
-    volumes:
-      - .:/app/src:ro
+      target: development
     environment:
       - NODE_ENV=development
-    command: npm  start
+    command: npm start
