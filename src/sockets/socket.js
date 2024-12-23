@@ -1,4 +1,5 @@
 import amqp from "amqplib/callback_api.js";
+
 import { getIO } from '../config/socket.js';
 
 export const setupSocketHandlers = () => {

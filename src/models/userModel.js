@@ -113,13 +113,13 @@ userSchema.pre(/^find/, function (next) {
   this.find({ active: { $ne: false } });
   next();
 });
-userSchema.pre(/^find/, function (next) {
-  this.populate({
-    path: "vehicleId",
-    select: "brand model year plateNumber",
-  });
-  next();
-});
+// userSchema.pre(/^find/, function (next) {
+//   this.populate({
+//     path: "vehicleId",
+//     select: "brand model year plateNumber",
+//   });
+//   next();
+// });
 
 // don't return password in response when user is created
 userSchema.methods.toJSON = function () {

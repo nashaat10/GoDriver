@@ -4,7 +4,10 @@ import AppError from "../utils/appError.js";
 import Driver from "../models/userModel.js";
 
 export const getAllVehicles = catchAsync(async (req, res, next) => {
-  const vehicles = await Vehicle.find().populate("driverId");
+  const vehicles = await Vehicle.find().populate({
+    path: "driverId",
+    select: "name email role",
+  });
   res.status(200).json({
     status: "success",
     results: vehicles.length,
@@ -15,7 +18,7 @@ export const getAllVehicles = catchAsync(async (req, res, next) => {
 });
 // Get vehicle by ID
 export const getVehicleData = catchAsync(async (req, res, next) => {
-  const vehicle = await Vehicle.findById(req.params.id).populate("driverId");
+  const vehicle = await Vehicle.findById(req.params.id);
   if (!vehicle) {
     return next(new AppError("No vehicle found with that ID", 404));
   }
@@ -30,6 +33,7 @@ export const getVehicleData = catchAsync(async (req, res, next) => {
 // Create a new vehicle
 export const createVehicle = catchAsync(async (req, res, next) => {
   const { brand, model, year, driverId, plateNumber } = req.body;
+
   const vehicle = new Vehicle({
     brand,
     model,
