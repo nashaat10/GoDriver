@@ -70,9 +70,6 @@ export const getAllDrivers = catchAsync(async (req, res, next) => {
   const drivers = await User.find({
     createdBy: req.user.id,
     role: "driver",
-  }).populate({
-    path: "tasks",
-    select: "title description status",
   });
   res.status(200).json({
     status: "success",

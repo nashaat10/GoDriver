@@ -5,7 +5,7 @@ import catchAsync from "../utils/catchAsync.js"; // Async error handling utility
 
 // Create a new task and assign it to a driver
 export const createTask = catchAsync(async (req, res, next) => {
-  const { title, description, driverId } = req.body;
+  const { title, description, driverId, startDate, deadline } = req.body;
   const managerId = req.user.id; // Assuming `req.user` contains the manager's information (via authentication)
 
   // Check if the driver exists
@@ -26,6 +26,9 @@ export const createTask = catchAsync(async (req, res, next) => {
     status: "pending",
     managerId, // The manager who created the task
     driverId, // The driver assigned to the task
+    startDate,
+    deadline,
+    createdAt: Date.now(),
   });
   driver.tasks.push(task._id);
   await driver.save();
@@ -160,3 +163,20 @@ export const deleteTask = catchAsync(async (req, res, next) => {
     message: "Task deleted successfully",
   });
 });
+
+// export const updateTaskStatus = catchAsync(async (req, res, next) => {
+//   const { status } = req.body;
+//   const taskId = req.params.id;
+//   const task = await Task.findByIdAndUpdate(taskId, { status }, { new: true });
+
+//   if (!task) {
+//     return next(new AppError("No task found with that ID", 404));
+//   }
+
+//   res.status(200).json({
+//     status: "success",
+//     data: {
+//       task,
+//     },
+//   });
+// });

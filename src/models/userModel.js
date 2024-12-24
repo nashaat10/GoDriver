@@ -118,7 +118,7 @@ userSchema.pre("save", async function (next) {
 userSchema.pre(/^find/, function (next) {
   this.populate({
     path: "tasks",
-    select: "title description status",
+    select: "title description status startDate deadline createdAt",
   });
   next();
 });

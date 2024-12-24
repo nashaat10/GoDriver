@@ -33,6 +33,4 @@ router
   .patch(userController.updateDriver)
   .delete(userController.deleteDriver);
 
-
-
 export default router;
