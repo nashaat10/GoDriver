@@ -8,7 +8,7 @@ export const setupSocketHandlers = () => {
     io.on('connection', socket => {
         console.log('Client connected');
 
-        amqp.connect('amqp://localhost', (err0, connection) => {
+        amqp.connect(process.env.RABBITMQ_URL || 'amqp://rabbitmq', (err0, connection) =>  {
             if (err0) {
                 console.error('Error connecting to RabbitMQ:', err0);
                 return;

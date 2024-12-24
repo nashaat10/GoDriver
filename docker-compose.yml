@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  server:
+    container_name: godriver-server
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./config.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq
+      - DATABASE_URL=mongodb+srv://bawq2024:bawq2024@godriver.94a2j.mongodb.net/?retryWrites=true&w=majority&appName=GoDriver
+
+  publisher:
+    container_name: godriver-publisher
+    build:
+      context: ./publisher
+      dockerfile: Dockerfile.publisher
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq
+      - DATABASE_URL=mongodb+srv://bawq2024:bawq2024@godriver.94a2j.mongodb.net/?retryWrites=true&w=majority&appName=GoDriver
+    restart: on-failure
+
+  consumer:
+    container_name: godriver-consumer
+    build:
+      context: .
+      dockerfile: Dockerfile.consumer
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq
+      - DATABASE_URL=mongodb+srv://bawq2024:bawq2024@godriver.94a2j.mongodb.net/?retryWrites=true&w=majority&appName=GoDriver
+    restart: on-failure
+
+  rabbitmq:
+    container_name: rabbitmq01
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
