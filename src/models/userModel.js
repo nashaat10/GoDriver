@@ -72,6 +72,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please provide a client id"],
     },
+    tasks: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Task",
+      },
+    ],
 
     createdAt: {
       type: Date,
@@ -110,16 +116,17 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "tasks",
+    select: "title description status",
+  });
+  next();
+});
+
+userSchema.pre(/^find/, function (next) {
   this.find({ active: { $ne: false } });
   next();
 });
-// userSchema.pre(/^find/, function (next) {
-//   this.populate({
-//     path: "vehicleId",
-//     select: "brand model year plateNumber",
-//   });
-//   next();
-// });
 
 // don't return password in response when user is created
 userSchema.methods.toJSON = function () {
