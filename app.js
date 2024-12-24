@@ -12,7 +12,7 @@ import managerRoutes from "./src/routes/managerRoutes.js";
 import adminRoutes from "./src/routes/adminRoutes.js";
 import driverRoutes from "./src/routes/driverRoutes.js";
 import clientRoutes from "./src/routes/clientRoutes.js";
-
+import chatRoutes from "./src/routes/chatRoutes.js";
 
 
 
@@ -63,7 +63,7 @@ app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/manager", managerRoutes);
 app.use("/api/v1/client", clientRoutes);
 app.use("/api/v1/alerts", alertRoutes);
-
+app.use("/api/v1/chats", chatRoutes);
 
 // Handle undefined routes
 app.all("*", (req, res, next) => {
