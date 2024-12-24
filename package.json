@@ -4,14 +4,16 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "concurrently \"node ./publisher/publisher.js\" \"node ./src/services/consumeVehicleData.js\" \"nodemon server.js\"",
-    "start:prod": "set NODE_ENV=production&& node server.js"
+    "start": "nodemon server.js",
+    "start:prod": "set NODE_ENV=production&& node server.js",
+    "start:all": "concurrently \"node ./publisher/publisher.js\" \"node ./src/services/consumeVehicleData.js\" \"nodemon server.js\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "concurrently": "^8.2.2", 
     "amqplib": "^0.10.5",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",

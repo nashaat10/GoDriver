@@ -2,11 +2,28 @@ import amqp from "amqplib";
 import dotenv from "dotenv";
 dotenv.config();
 
-const generateVehicleData = async () => {
-  try {
-    // Connect to RabbitMQ
-    const connection = await amqp.connect("amqp://rabbitmq");
-    const channel = await connection.createChannel();
+const connectWithRetry = async () => {
+    const maxRetries = 5;
+    let retries = 0;
+  
+    while (retries < maxRetries) {
+      try {
+        const connection = await amqp.connect(process.env.RABBITMQ_URL || "amqp://rabbitmq");
+        console.log("Successfully connected to RabbitMQ");
+        return connection;
+      } catch (error) {
+        retries++;
+        console.log(`Failed to connect to RabbitMQ. Attempt ${retries} of ${maxRetries}`);
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds before retrying
+      }
+    }
+    throw new Error("Failed to connect to RabbitMQ after multiple attempts");
+  };
+  
+  const generateVehicleData = async () => {
+    try {
+      const connection = await connectWithRetry();
+      const channel = await connection.createChannel();
     const lat = parseFloat((Math.random() * (26.3 - 25.8) + 25.8).toFixed(6));
     const lon = parseFloat((Math.random() * (50.7 - 50.3) + 50.3).toFixed(6));
     const queue = "vehicle_data";
