@@ -28,6 +28,7 @@ export const createTask = catchAsync(async (req, res, next) => {
     driverId, // The driver assigned to the task
     startDate,
     deadline,
+    createdAt: Date.now(),
   });
   driver.tasks.push(task._id);
   await driver.save();
