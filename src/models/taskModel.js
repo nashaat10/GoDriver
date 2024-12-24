@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import moment from "moment";
 
 // Create the Task schema
 const taskSchema = new mongoose.Schema(
@@ -13,14 +14,14 @@ const taskSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "in-progress", "completed"],
+      enum: ["pending", "in-progress", "completed", "delayed"],
       default: "pending",
     },
     startDate: {
       type: Date,
       required: [true, "A task must have a start date"],
     },
-    endDate: {
+    deadline: {
       type: Date,
       required: [true, "A task must have an end date"],
     },
@@ -65,7 +66,6 @@ const taskSchema = new mongoose.Schema(
   }
 );
 
-// Create the Task model
 const Task = mongoose.model("Task", taskSchema);
 
 export default Task;
