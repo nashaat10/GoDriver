@@ -12,8 +12,7 @@ import managerRoutes from "./src/routes/managerRoutes.js";
 import adminRoutes from "./src/routes/adminRoutes.js";
 import driverRoutes from "./src/routes/driverRoutes.js";
 import clientRoutes from "./src/routes/clientRoutes.js";
-import http from "http";
-import { Server } from "socket.io";
+
 
 
 
@@ -26,7 +25,7 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
 // Enable CORS
 app.use(cors({
-  origin: "*",  // In production, specify your frontend domain
+  origin: "*",  
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   credentials: true
 }));
