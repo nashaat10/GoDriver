@@ -1,0 +1,48 @@
+services:
+  server:
+    container_name: godriver-server-prod
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./config.env
+    environment:
+      - NODE_ENV=production
+      - RABBITMQ_URL=amqp://rabbitmq
+    command: npm run start:prod
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  publisher:
+    container_name: godriver-publisher-prod
+    build:
+      context: ./publisher
+      dockerfile: Dockerfile.publisher
+    environment:
+      - NODE_ENV=production
+      - RABBITMQ_URL=amqp://rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: on-failure
+
+  consumer:
+    container_name: godriver-consumer-prod
+    build:
+      context: .
+      dockerfile: Dockerfile.consumer
+    environment:
+      - NODE_ENV=production
+      - RABBITMQ_URL=amqp://rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: on-failure
+
+  rabbitmq:
+    extends:
+      file: docker-compose.yml
+      service: rabbitmq

@@ -2,9 +2,9 @@ import app from "./app.js";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import http from "http";
-import { initSocket } from './src/config/socket.js';
-import { setupAlertHandlers } from './src/sockets/alertHandler.js';
-import { setupSocketHandlers } from './src/sockets/socket.js';
+import { initSocket } from "./src/config/socket.js";
+import { setupAlertHandlers } from "./src/sockets/alertHandler.js";
+import { setupSocketHandlers } from "./src/sockets/socket.js";
 
 dotenv.config({ path: "./config.env" });
 
