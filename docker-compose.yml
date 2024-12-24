@@ -6,3 +6,15 @@ services:
       - "4000:4000"
     env_file:
       - ./config.env
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    container_name: rabbitmq2
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"

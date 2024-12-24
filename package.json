@@ -4,7 +4,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "concurrently \"node ./publisher/publisher.js\" \"node ./src/services/consumeVehicleData.js\" \"nodemon server.js\"",
     "start:prod": "set NODE_ENV=production&& node server.js"
   },
   "keywords": [],
