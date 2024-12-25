@@ -99,7 +99,8 @@ export const getTaskById = catchAsync(async (req, res, next) => {
 
 // Update a task (e.g., changing status or other details)
 export const updateTask = catchAsync(async (req, res, next) => {
-  const { title, description, status, driverId } = req.body;
+  const { title, description, status, driverId, startDate, deadline } =
+    req.body;
   const taskId = req.params.id;
 
   const task = await Task.findById(taskId);
@@ -126,9 +127,10 @@ export const updateTask = catchAsync(async (req, res, next) => {
   // Update the task fields
   task.title = title || task.title;
   task.description = description || task.description;
-  task.dueDate = dueDate || task.dueDate;
   task.status = status || task.status;
   task.driverId = driverId || task.driverId;
+  task.startDate = startDate || task.startDate;
+  task.deadline = deadline || task.deadline;
 
   await task.save();
 
