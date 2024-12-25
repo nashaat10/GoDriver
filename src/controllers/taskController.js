@@ -99,7 +99,8 @@ export const getTaskById = catchAsync(async (req, res, next) => {
 
 // Update a task (e.g., changing status or other details)
 export const updateTask = catchAsync(async (req, res, next) => {
-  const { title, description, dueDate, status, driverId } = req.body;
+  const { title, description, status, driverId, startDate, deadline } =
+    req.body;
   const taskId = req.params.id;
   
 
@@ -127,9 +128,10 @@ export const updateTask = catchAsync(async (req, res, next) => {
   // Update the task fields
   task.title = title || task.title;
   task.description = description || task.description;
-  task.dueDate = dueDate || task.dueDate;
   task.status = status || task.status;
   task.driverId = driverId || task.driverId;
+  task.startDate = startDate || task.startDate;
+  task.deadline = deadline || task.deadline;
 
   await task.save();
 
@@ -164,20 +166,3 @@ export const deleteTask = catchAsync(async (req, res, next) => {
     message: "Task deleted successfully",
   });
 });
-
-// export const updateTaskStatus = catchAsync(async (req, res, next) => {
-//   const { status } = req.body;
-//   const taskId = req.params.id;
-//   const task = await Task.findByIdAndUpdate(taskId, { status }, { new: true });
-
-//   if (!task) {
-//     return next(new AppError("No task found with that ID", 404));
-//   }
-
-//   res.status(200).json({
-//     status: "success",
-//     data: {
-//       task,
-//     },
-//   });
-// });
