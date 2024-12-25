@@ -5,7 +5,7 @@ import http from "http";
 import { initSocket } from "./src/config/socket.js";
 import { setupAlertHandlers } from "./src/sockets/alertHandler.js";
 import { setupSocketHandlers } from "./src/sockets/socket.js";
-import { setupChatHandlers } from "./src/sockets/chatHandler.js";
+import { setupChatHandlers } from "./src/sockets/chatHandlers.js";
 
 dotenv.config({ path: "./config.env" });
 
