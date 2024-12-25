@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "nodemon server.js",
-    "start:prod": "set NODE_ENV=production&& node server.js"
+    "start:prod": "set NODE_ENV=production&& node server.js",
+    "start:all": "concurrently \"node ./publisher/publisher.js\" \"node ./src/services/consumeVehicleData.js\" \"nodemon server.js\""
   },
   "keywords": [],
   "author": "",
@@ -16,6 +17,7 @@
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.1",
+    "concurrently": "^8.2.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
@@ -23,6 +25,7 @@
     "express": "^4.21.2",
     "express-rate-limit": "^7.4.1",
     "jsonwebtoken": "^9.0.2",
+    "moment": "^2.30.1",
     "mongodb": "^6.11.0",
     "mongoose": "^8.8.4",
     "morgan": "^1.10.0",

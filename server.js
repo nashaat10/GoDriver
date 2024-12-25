@@ -2,9 +2,10 @@ import app from "./app.js";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import http from "http";
-import { initSocket } from './src/config/socket.js';
-import { setupAlertHandlers } from './src/sockets/alertHandler.js';
-import { setupSocketHandlers } from './src/sockets/socket.js';
+import { initSocket } from "./src/config/socket.js";
+import { setupAlertHandlers } from "./src/sockets/alertHandler.js";
+import { setupSocketHandlers } from "./src/sockets/socket.js";
+import { setupChatHandlers } from "./src/sockets/chatHandler.js";
 
 dotenv.config({ path: "./config.env" });
 
@@ -16,6 +17,7 @@ const io = initSocket(server);
 
 // Setup alert handlers
 setupSocketHandlers();
+setupChatHandlers();
 setupAlertHandlers();
 
 const DB = process.env.DATABASE_URL;

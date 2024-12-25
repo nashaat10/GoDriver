@@ -6,6 +6,23 @@ import { processAlert } from './alertProcessor.js';
 import dotenv from "dotenv";
 
 dotenv.config();
+const connectWithRetry = async () => {
+  const maxRetries = 5;
+  let retries = 0;
+
+  while (retries < maxRetries) {
+    try {
+      const connection = await amqp.connect(process.env.RABBITMQ_URL || "amqp://rabbitmq");
+      console.log("Successfully connected to RabbitMQ");
+      return connection;
+    } catch (error) {
+      retries++;
+      console.log(`Failed to connect to RabbitMQ. Attempt ${retries} of ${maxRetries}`);
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds before retrying
+    }
+  }
+  throw new Error("Failed to connect to RabbitMQ after multiple attempts");
+};
 
 const consumeVehicleData = async () => {
   try {
@@ -14,7 +31,7 @@ const consumeVehicleData = async () => {
     console.log("Connected to MongoDB");
 
     // Connect to RabbitMQ
-    const connection = await amqp.connect("amqp://localhost");
+    const connection = await connectWithRetry();
     const channel = await connection.createChannel();
 
     const queue = "vehicle_data";

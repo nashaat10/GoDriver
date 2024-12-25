@@ -1,11 +1,57 @@
-version: "3.7"
 services:
-  app:
+  server:
+    container_name: godriver-server-dev
     build:
       context: .
-      dockerfile: Dockerfile.dev
-    volumes:
-      - .:/app/src:ro
+      dockerfile: Dockerfile.server
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./config.env
     environment:
       - NODE_ENV=development
-    command: npm  start
+      - RABBITMQ_URL=amqp://rabbitmq
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm start # This now only runs the server
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  publisher:
+    container_name: godriver-publisher-dev
+    build:
+      context: ./publisher
+      dockerfile: Dockerfile.publisher
+    environment:
+      - NODE_ENV=development
+      - RABBITMQ_URL=amqp://rabbitmq
+    volumes:
+      - ./publisher:/app
+      - /app/node_modules
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: on-failure
+
+  consumer:
+    container_name: godriver-consumer-dev
+    build:
+      context: .
+      dockerfile: Dockerfile.consumer
+    environment:
+      - NODE_ENV=development
+      - RABBITMQ_URL=amqp://rabbitmq
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: on-failure
+
+  rabbitmq:
+    extends:
+      file: docker-compose.yml
+      service: rabbitmq

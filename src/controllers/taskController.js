@@ -5,7 +5,7 @@ import catchAsync from "../utils/catchAsync.js"; // Async error handling utility
 
 // Create a new task and assign it to a driver
 export const createTask = catchAsync(async (req, res, next) => {
-  const { title, description, dueDate, driverId } = req.body;
+  const { title, description, driverId, startDate, deadline } = req.body;
   const managerId = req.user.id; // Assuming `req.user` contains the manager's information (via authentication)
 
   // Check if the driver exists
@@ -23,11 +23,15 @@ export const createTask = catchAsync(async (req, res, next) => {
   const task = await Task.create({
     title,
     description,
-    dueDate,
     status: "pending",
     managerId, // The manager who created the task
     driverId, // The driver assigned to the task
+    startDate,
+    deadline,
+    createdAt: Date.now(),
   });
+  driver.tasks.push(task._id);
+  await driver.save();
 
   res.status(201).json({
     status: "success",
@@ -58,8 +62,8 @@ export const getAllTasksForManager = catchAsync(async (req, res, next) => {
 
 // Get all tasks assigned to a specific driver
 export const getAllTasksForDriver = catchAsync(async (req, res, next) => {
-  const driverId= req.params.id;
-  
+  const driverId = req.params.id;
+
   const tasks = await Task.find({ driverId });
 
   if (!tasks || tasks.length === 0) {
@@ -113,9 +117,9 @@ export const updateTask = catchAsync(async (req, res, next) => {
 
   // Optionally check if the driver exists (optional, if you are updating the driver)
   if (driverId) {
-    const driver = await User.findOne({_id: driverId, role: 'driver'});
-    if(!driver) {
-      return next(new AppError('Driver not found', 404))
+    const driver = await User.findOne({ _id: driverId, role: "driver" });
+    if (!driver) {
+      return next(new AppError("Driver not found", 404));
     }
   }
 
@@ -135,7 +139,6 @@ export const updateTask = catchAsync(async (req, res, next) => {
     },
   });
 });
-
 
 // Delete a task (soft delete)
 export const deleteTask = catchAsync(async (req, res, next) => {
@@ -160,3 +163,20 @@ export const deleteTask = catchAsync(async (req, res, next) => {
     message: "Task deleted successfully",
   });
 });
+
+// export const updateTaskStatus = catchAsync(async (req, res, next) => {
+//   const { status } = req.body;
+//   const taskId = req.params.id;
+//   const task = await Task.findByIdAndUpdate(taskId, { status }, { new: true });
+
+//   if (!task) {
+//     return next(new AppError("No task found with that ID", 404));
+//   }
+
+//   res.status(200).json({
+//     status: "success",
+//     data: {
+//       task,
+//     },
+//   });
+// });

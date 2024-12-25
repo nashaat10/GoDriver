@@ -15,7 +15,7 @@ router.use(protect);
 router
   .route("/")
   .post(restrictTo("manager", "admin"), createTask)
-  .get(restrictTo("manager"), getAllTasksForManager);
+  .get(restrictTo("manager", "admin"), getAllTasksForManager);
 
 router
   .route("/driver/:id")

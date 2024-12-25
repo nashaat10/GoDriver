@@ -6,7 +6,7 @@ import Driver from "../models/userModel.js";
 export const getAllVehicles = catchAsync(async (req, res, next) => {
   const vehicles = await Vehicle.find().populate({
     path: "driverId",
-    select: "name email role",
+    select: "name email phone profilePicture",
   });
   res.status(200).json({
     status: "success",
