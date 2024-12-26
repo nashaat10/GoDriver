@@ -13,8 +13,7 @@ import adminRoutes from "./src/routes/adminRoutes.js";
 import driverRoutes from "./src/routes/driverRoutes.js";
 import clientRoutes from "./src/routes/clientRoutes.js";
 import chatRoutes from "./src/routes/chatRoutes.js";
-
-
+import trackRoutes from "./src/routes/trackingRoutes.js";
 
 const app = express();
 
@@ -24,14 +23,14 @@ app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
 // Enable CORS
-app.use(cors({
-  origin: "*",  
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true,
+  })
+);
 // app.options("*", cors());
-
-
 
 // Rate limiting
 
@@ -40,7 +39,6 @@ const limiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   message: "Too many requests from this IP, please try again in an hour!",
 });
-
 
 app.set("trust proxy", true);
 app.use(express.static("./public"));
@@ -64,6 +62,7 @@ app.use("/api/v1/manager", managerRoutes);
 app.use("/api/v1/client", clientRoutes);
 app.use("/api/v1/alerts", alertRoutes);
 app.use("/api/v1/chats", chatRoutes);
+app.use("/api/v1/tracking", trackRoutes);
 
 // Handle undefined routes
 app.all("*", (req, res, next) => {
