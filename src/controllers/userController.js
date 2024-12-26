@@ -219,7 +219,10 @@ export const searchDriversByName = catchAsync(async (req, res, next) => {
 });
 
 export const getDriversLength = catchAsync(async (req, res, next) => {
-  const driverLength = await User.countDocuments({ role: "driver" });
+  const driverLength = await User.countDocuments({
+    role: "driver",
+    active: true,
+  });
   res.status(200).json({
     status: "success",
     data: {
