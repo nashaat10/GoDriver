@@ -7,7 +7,6 @@ import cloudinary from "cloudinary";
 import dotenv from "dotenv";
 import stream from "stream";
 import Vehicle from "../models/vehicleModel.js";
-import APIFeatures from "../utils/apiFeatures.js";
 
 dotenv.config({ path: "../../config.env" });
 cloudinary.v2.config({
@@ -215,6 +214,16 @@ export const searchDriversByName = catchAsync(async (req, res, next) => {
     results: drivers.length,
     data: {
       drivers,
+    },
+  });
+});
+
+export const getDriversLength = catchAsync(async (req, res, next) => {
+  const driverLength = await User.countDocuments({ role: "driver" });
+  res.status(200).json({
+    status: "success",
+    data: {
+      driverLength,
     },
   });
 });
