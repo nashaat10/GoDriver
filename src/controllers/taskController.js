@@ -102,7 +102,6 @@ export const updateTask = catchAsync(async (req, res, next) => {
   const { title, description, status, driverId, startDate, deadline } =
     req.body;
   const taskId = req.params.id;
-  
 
   const task = await Task.findById(taskId);
 
@@ -158,7 +157,7 @@ export const deleteTask = catchAsync(async (req, res, next) => {
     );
   }
 
-  task.isDeleted = true; // Soft delete by marking it as deleted
+  task.isDeleted = true;
   await task.save();
 
   res.status(200).json({
