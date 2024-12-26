@@ -12,6 +12,8 @@ router
   .get(userController.getAllDrivers)
   .post(userController.createDriver);
 
+router.route("/drivers/length").get(userController.getDriversLength);
+
 router.route("/me").get(userController.getMe, userController.getUser);
 router
   .route("/updateMe")

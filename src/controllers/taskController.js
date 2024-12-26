@@ -45,7 +45,11 @@ export const createTask = catchAsync(async (req, res, next) => {
 export const getAllTasksForManager = catchAsync(async (req, res, next) => {
   const managerId = req.user.id; // Assuming `req.user.id` is the logged-in manager's ID
 
-  const tasks = await Task.find({ managerId });
+  // pagination
+  const page = req.query.page * 1 || 1;
+  const limit = req.query.limit * 1 || 100;
+  const skip = (page - 1) * limit;
+  const tasks = await Task.find({ managerId }).skip(skip).limit(limit);
 
   if (!tasks || tasks.length === 0) {
     return next(new AppError("No tasks found for this manager", 404));
@@ -54,6 +58,7 @@ export const getAllTasksForManager = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     results: tasks.length,
+    currentPage: page,
     data: {
       tasks,
     },
@@ -64,7 +69,12 @@ export const getAllTasksForManager = catchAsync(async (req, res, next) => {
 export const getAllTasksForDriver = catchAsync(async (req, res, next) => {
   const driverId = req.params.id;
 
-  const tasks = await Task.find({ driverId });
+  // pagination
+  const page = req.query.page * 1 || 1;
+  const limit = req.query.limit * 1 || 100;
+  const skip = (page - 1) * limit;
+
+  const tasks = await Task.find({ driverId }).skip(skip).limit(limit);
 
   if (!tasks || tasks.length === 0) {
     return next(new AppError("No tasks found for this driver", 404));
@@ -157,11 +167,21 @@ export const deleteTask = catchAsync(async (req, res, next) => {
     );
   }
 
-  task.isDeleted = true; // Soft delete by marking it as deleted
+  task.isDeleted = true;
   await task.save();
 
   res.status(200).json({
     status: "success",
     message: "Task deleted successfully",
+  });
+});
+
+export const getTasksLength = catchAsync(async (req, res, next) => {
+  const tasks = await Task.countDocuments();
+  res.status(200).json({
+    status: "success",
+    data: {
+      tasks,
+    },
   });
 });

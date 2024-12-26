@@ -4,13 +4,22 @@ import AppError from "../utils/appError.js";
 import Driver from "../models/userModel.js";
 
 export const getAllVehicles = catchAsync(async (req, res, next) => {
-  const vehicles = await Vehicle.find().populate({
-    path: "driverId",
-    select: "name email phone profilePicture",
-  });
+  const page = req.query.page * 1 || 1;
+  const limit = req.query.limit * 1 || 100;
+  const skip = (page - 1) * limit;
+
+  const vehicles = await Vehicle.find()
+    .populate({
+      path: "driverId",
+      select: "name email phone profilePicture",
+    })
+    .skip(skip)
+    .limit(limit);
+
   res.status(200).json({
     status: "success",
     results: vehicles.length,
+    currentPage: page,
     data: {
       vehicles,
     },
@@ -64,6 +73,16 @@ export const searchVehicleByPlateNumber = catchAsync(async (req, res, next) => {
     status: "success",
     data: {
       vehicle,
+    },
+  });
+});
+
+export const getVehiclesLength = catchAsync(async (req, res, next) => {
+  const vehicles = await Vehicle.countDocuments();
+  res.status(200).json({
+    status: "success",
+    data: {
+      vehicles,
     },
   });
 });
