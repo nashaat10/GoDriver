@@ -8,13 +8,21 @@ export const getAllVehicles = catchAsync(async (req, res, next) => {
   const limit = req.query.limit * 1 || 100;
   const skip = (page - 1) * limit;
 
+  let sort = {};
+  if (req.query.sort) {
+    sort = {
+      [req.query.sort]: req.query.direction === "desc" ? -1 : 1,
+    };
+  }
+
   const vehicles = await Vehicle.find()
     .populate({
       path: "driverId",
       select: "name email phone profilePicture",
     })
     .skip(skip)
-    .limit(limit);
+    .limit(limit)
+    .sort(sort);
 
   res.status(200).json({
     status: "success",
