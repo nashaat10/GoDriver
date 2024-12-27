@@ -3,10 +3,9 @@ import User from "../models/userModel.js"; // Import the User model (to check if
 import AppError from "../utils/appError.js"; // Error handling utility
 import catchAsync from "../utils/catchAsync.js"; // Async error handling utility
 
-// Create a new task and assign it to a driver
 export const createTask = catchAsync(async (req, res, next) => {
   const { title, description, driverId, startDate, deadline } = req.body;
-  const managerId = req.user.id; // Assuming `req.user` contains the manager's information (via authentication)
+  const managerId = req.user.id;
 
   // Check if the driver exists
   const driver = await User.findById(driverId);
