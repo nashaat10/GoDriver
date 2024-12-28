@@ -33,7 +33,6 @@ export const getAllVehicles = catchAsync(async (req, res, next) => {
     },
   });
 });
-// Get vehicle by ID
 export const getVehicleData = catchAsync(async (req, res, next) => {
   const vehicle = await Vehicle.findById(req.params.id);
   if (!vehicle) {
@@ -47,7 +46,6 @@ export const getVehicleData = catchAsync(async (req, res, next) => {
   });
 });
 
-// Create a new vehicle
 export const createVehicle = catchAsync(async (req, res, next) => {
   const { brand, model, year, driverId, plateNumber } = req.body;
 
@@ -68,7 +66,6 @@ export const createVehicle = catchAsync(async (req, res, next) => {
   });
 });
 
-// Search for a vehicle by plate number
 export const searchVehicleByPlateNumber = catchAsync(async (req, res, next) => {
   const { plateNumber } = req.params;
   const vehicle = await Vehicle.findOne({ plateNumber });
