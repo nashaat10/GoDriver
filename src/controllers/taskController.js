@@ -7,7 +7,6 @@ export const createTask = catchAsync(async (req, res, next) => {
   const { title, description, driverId, startDate, deadline } = req.body;
   const managerId = req.user.id;
 
-  // Check if the driver exists
   const driver = await User.findById(driverId);
   if (!driver || driver.role !== "driver") {
     return next(
@@ -18,7 +17,6 @@ export const createTask = catchAsync(async (req, res, next) => {
     );
   }
 
-  // Create the task
   const task = await Task.create({
     title,
     description,
@@ -87,7 +85,7 @@ export const getAllTasksForDriver = catchAsync(async (req, res, next) => {
 export const getTaskById = catchAsync(async (req, res, next) => {
   const task = await Task.findById(req.params.id).populate(
     "managerId driverId"
-  ); // Populate manager and driver details
+  );
 
   if (!task) {
     return next(new AppError("No task found with that ID", 404));
@@ -112,7 +110,6 @@ export const updateTask = catchAsync(async (req, res, next) => {
     return next(new AppError("No task found with that ID", 404));
   }
 
-  // Only managers can update the task (you can extend this based on your needs)
   if (task.managerId.toString() !== req.user.id) {
     return next(
       new AppError("You are not authorized to update this task", 403)
@@ -126,7 +123,6 @@ export const updateTask = catchAsync(async (req, res, next) => {
     }
   }
 
-  // Update the task fields
   task.title = title || task.title;
   task.description = description || task.description;
   task.status = status || task.status;

@@ -2,14 +2,10 @@ FROM node:20
 
 WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
 
-# Install dependencies and concurrently globally
 RUN npm install && npm install -g concurrently nodemon
 
-# Copy the rest of the application
 COPY . .
 
-# Set the command based on environment
 CMD ["npm", "start"]
