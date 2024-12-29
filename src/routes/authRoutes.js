@@ -10,7 +10,7 @@ router.post("/verify-otp", authController.verifyOTP);
 router.patch("/resetPassword", authController.resetPassword);
 router.patch(
   "/updateMyPassword",
-  authController.protect,
+  authController.protect,  
   authController.updatePassword
 );
 

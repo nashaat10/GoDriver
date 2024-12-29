@@ -57,7 +57,7 @@ const vehicleDataSchema = new mongoose.Schema({
     driverId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: [true, 'A task must have a driver'],
+        required: [true, 'A Vehicle must have a driver'],
     },
     vehicleId: {
         type: mongoose.Schema.Types.ObjectId,
