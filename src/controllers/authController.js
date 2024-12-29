@@ -58,8 +58,6 @@ export const login = catchAsync(async (req, res, next) => {
 });
 
 export const protect = catchAsync(async (req, res, next) => {
-  // 1) Getting token and check if it's there
-
   let token;
   if (
     req.headers.authorization &&
@@ -77,7 +75,6 @@ export const protect = catchAsync(async (req, res, next) => {
 
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
-  // 3) Check if user still exists
   const currentUser = await User.findById(decoded.id);
   if (!currentUser) {
     return next(
@@ -94,8 +91,6 @@ export const protect = catchAsync(async (req, res, next) => {
       new AppError("User recently changed password! Please log in again.", 401)
     );
   }
-
-  // 5) Grant access to protected route
 
   req.user = currentUser;
   next();
@@ -166,13 +161,11 @@ export const forgetPassword = catchAsync(async (req, res, next) => {
 export const verifyOTP = catchAsync(async (req, res, next) => {
   const { email, otp } = req.body;
 
-  // Find user by email
   const user = await User.findOne({ email });
   if (!user) {
     return next(new AppError("User not found.", 404));
   }
 
-  // un hash the code and compare it with the one in the database
   const hashedCode = crypto.createHash("sha256").update(otp).digest("hex");
   if (
     user.verificationCode !== hashedCode ||
@@ -180,8 +173,6 @@ export const verifyOTP = catchAsync(async (req, res, next) => {
   ) {
     return next(new AppError("Invalid or expired OTP.", 400));
   }
-
-  // OTP is valid, proceed with the next steps (e.g., reset password)
 
   res.status(200).json({
     status: "success",
