@@ -12,7 +12,6 @@ import managerRoutes from "./src/routes/managerRoutes.js";
 import adminRoutes from "./src/routes/adminRoutes.js";
 import driverRoutes from "./src/routes/driverRoutes.js";
 import clientRoutes from "./src/routes/clientRoutes.js";
-import chatRoutes from "./src/routes/chatRoutes.js";
 import trackRoutes from "./src/routes/trackingRoutes.js";
 
 const app = express();
@@ -33,7 +32,6 @@ app.use(
 // app.options("*", cors());
 
 // Rate limiting
-
 const limiter = rateLimit({
   max: 1000,
   windowMs: 60 * 60 * 1000,
@@ -61,7 +59,6 @@ app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/manager", managerRoutes);
 app.use("/api/v1/client", clientRoutes);
 app.use("/api/v1/alerts", alertRoutes);
-app.use("/api/v1/chats", chatRoutes);
 app.use("/api/v1/tracking", trackRoutes);
 
 // Handle undefined routes

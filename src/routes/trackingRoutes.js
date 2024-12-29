@@ -13,4 +13,6 @@ router
     trackingController.getAllVehicleData
   );
 
+// router.route("/:id").get(trackingController.getVehicleData);
+
 export default router;

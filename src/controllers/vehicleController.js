@@ -32,7 +32,7 @@ export const getAllVehicles = catchAsync(async (req, res, next) => {
     },
   });
 });
-export const getVehicleData = catchAsync(async (req, res, next) => {
+export const getVehicle = catchAsync(async (req, res, next) => {
   const vehicle = await Vehicle.findById(req.params.id);
   if (!vehicle) {
     return next(new AppError("No vehicle found with that ID", 404));
