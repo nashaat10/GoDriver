@@ -1,12 +1,11 @@
-import Task from "../models/taskModel.js"; // Import the Task model
-import User from "../models/userModel.js"; // Import the User model (to check if the manager and driver exist)
-import AppError from "../utils/appError.js"; // Error handling utility
-import catchAsync from "../utils/catchAsync.js"; // Async error handling utility
+import Task from "../models/taskModel.js";
+import User from "../models/userModel.js";
+import AppError from "../utils/appError.js";
+import catchAsync from "../utils/catchAsync.js";
 
-// Create a new task and assign it to a driver
 export const createTask = catchAsync(async (req, res, next) => {
   const { title, description, driverId, startDate, deadline } = req.body;
-  const managerId = req.user.id; // Assuming `req.user` contains the manager's information (via authentication)
+  const managerId = req.user.id;
 
   // Check if the driver exists
   const driver = await User.findById(driverId);
@@ -24,8 +23,8 @@ export const createTask = catchAsync(async (req, res, next) => {
     title,
     description,
     status: "pending",
-    managerId, // The manager who created the task
-    driverId, // The driver assigned to the task
+    managerId,
+    driverId,
     startDate,
     deadline,
     createdAt: Date.now(),
@@ -41,11 +40,9 @@ export const createTask = catchAsync(async (req, res, next) => {
   });
 });
 
-// Get all tasks assigned to a specific manager
 export const getAllTasksForManager = catchAsync(async (req, res, next) => {
-  const managerId = req.user.id; // Assuming `req.user.id` is the logged-in manager's ID
+  const managerId = req.user.id;
 
-  // pagination
   const page = req.query.page * 1 || 1;
   const limit = req.query.limit * 1 || 100;
   const skip = (page - 1) * limit;
@@ -65,11 +62,9 @@ export const getAllTasksForManager = catchAsync(async (req, res, next) => {
   });
 });
 
-// Get all tasks assigned to a specific driver
 export const getAllTasksForDriver = catchAsync(async (req, res, next) => {
   const driverId = req.params.id;
 
-  // pagination
   const page = req.query.page * 1 || 1;
   const limit = req.query.limit * 1 || 100;
   const skip = (page - 1) * limit;
@@ -89,7 +84,6 @@ export const getAllTasksForDriver = catchAsync(async (req, res, next) => {
   });
 });
 
-// Get a specific task by ID
 export const getTaskById = catchAsync(async (req, res, next) => {
   const task = await Task.findById(req.params.id).populate(
     "managerId driverId"
@@ -107,7 +101,6 @@ export const getTaskById = catchAsync(async (req, res, next) => {
   });
 });
 
-// Update a task (e.g., changing status or other details)
 export const updateTask = catchAsync(async (req, res, next) => {
   const { title, description, status, driverId, startDate, deadline } =
     req.body;
@@ -126,7 +119,6 @@ export const updateTask = catchAsync(async (req, res, next) => {
     );
   }
 
-  // Optionally check if the driver exists (optional, if you are updating the driver)
   if (driverId) {
     const driver = await User.findOne({ _id: driverId, role: "driver" });
     if (!driver) {
@@ -152,7 +144,6 @@ export const updateTask = catchAsync(async (req, res, next) => {
   });
 });
 
-// Delete a task (soft delete)
 export const deleteTask = catchAsync(async (req, res, next) => {
   const task = await Task.findById(req.params.id);
 
@@ -160,7 +151,6 @@ export const deleteTask = catchAsync(async (req, res, next) => {
     return next(new AppError("No task found with that ID", 404));
   }
 
-  // Only managers can delete tasks (optional)
   if (task.managerId.toString() !== req.user.id) {
     return next(
       new AppError("You are not authorized to delete this task", 403)
