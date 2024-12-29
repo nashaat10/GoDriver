@@ -1,7 +1,6 @@
 import Vehicle from "../models/vehicleModel.js";
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
-import Driver from "../models/userModel.js";
 
 export const getAllVehicles = catchAsync(async (req, res, next) => {
   const page = req.query.page * 1 || 1;
