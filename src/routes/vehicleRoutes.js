@@ -2,7 +2,7 @@ import express from "express";
 import * as authController from "../controllers/authController.js";
 
 import {
-  getVehicleData,
+  getVehicle,
   searchVehicleByPlateNumber,
   createVehicle,
   getAllVehicles,
@@ -15,7 +15,7 @@ router.use(authController.protect);
 
 router.route("/").get(getAllVehicles).post(createVehicle);
 router.route("/length").get(getVehiclesLength);
-router.get("/:id", getVehicleData);
+router.get("/:id", getVehicle);
 router.get("/search/:plateNumber", searchVehicleByPlateNumber);
 
 export default router;
