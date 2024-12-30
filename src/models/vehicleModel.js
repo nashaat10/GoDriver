@@ -10,13 +10,24 @@ const vehicleSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true, versionKey: false },
+    toJSON: {
+      virtuals: true,
+      versionKey: false,
+      transform: function (doc, ret) {
+        delete ret._id;
+      },
+    },
 
-    toObject: { virtuals: true, versionKey: false },
+    toObject: {
+      virtuals: true,
+      versionKey: false,
+      transform: function (doc, ret) {
+        delete ret._id;
+      },
+    },
   }
 );
 
 const Vehicle = mongoose.model("Vehicle", vehicleSchema);
-// export def
 
 export default Vehicle;
