@@ -1,5 +1,7 @@
 // import redisClient from '../config/redis.js';
 
+import { NotificationInstance } from "twilio/lib/rest/api/v2010/account/notification"
+
 // const simulateVehicleData = () => ({
 //     speed: Math.floor(Math.random() * 120),
 //     fuelLevel: Math.floor(Math.random() * 100),
@@ -17,3 +19,16 @@
 // export const startVehicleSimulation = (vehicleId) => {
 //     setInterval(() => updateVehicleData(vehicleId), 5000);
 // };
+
+
+
+
+
+
+
+// vehicle data model need to update 
+//firebase for Notifications
+//alert Controller  one find for vehicle and type 
+//seen notifications
+//tracking  track refrence to vehicle
+//seprate notification and alerts 
