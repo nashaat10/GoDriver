@@ -66,10 +66,16 @@ export const resizeUserPhoto = catchAsync(async (req, res, next) => {
 });
 
 export const getAllDrivers = catchAsync(async (req, res, next) => {
+  const page = req.query.page * 1 || 1;
+  const limit = req.query.limit * 1 || 100;
+  const skip = (page - 1) * limit;
+
   const drivers = await User.find({
     clientId: req.user.clientId,
     role: "driver",
-  });
+  })
+    .skip(skip)
+    .limit(limit);
   res.status(200).json({
     status: "success",
     results: drivers.length,
