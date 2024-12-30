@@ -79,6 +79,7 @@ export const getAllDrivers = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     results: drivers.length,
+    currentPage: page,
     data: {
       drivers,
     },
