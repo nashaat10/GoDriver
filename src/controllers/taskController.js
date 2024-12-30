@@ -5,7 +5,7 @@ import catchAsync from "../utils/catchAsync.js";
 
 export const createTask = catchAsync(async (req, res, next) => {
   const { title, description, driverId, startDate, deadline } = req.body;
-  const managerId = req.user.id;
+  const createdBy = req.user.id;
 
   const driver = await User.findById(driverId);
   if (!driver || driver.role !== "driver") {
@@ -21,14 +21,14 @@ export const createTask = catchAsync(async (req, res, next) => {
     title,
     description,
     status: "pending",
-    managerId,
+    createdBy,
     driverId,
     startDate,
     deadline,
     createdAt: Date.now(),
   });
-  driver.tasks.push(task._id);
-  await driver.save();
+  // driver.tasks.push(task._id);
+  // await driver.save();
 
   res.status(201).json({
     status: "success",
@@ -38,16 +38,16 @@ export const createTask = catchAsync(async (req, res, next) => {
   });
 });
 
-export const getAllTasksForManager = catchAsync(async (req, res, next) => {
-  const managerId = req.user.id;
-
+export const getAllTasks = catchAsync(async (req, res, next) => {
   const page = req.query.page * 1 || 1;
   const limit = req.query.limit * 1 || 100;
   const skip = (page - 1) * limit;
-  const tasks = await Task.find({ managerId }).skip(skip).limit(limit);
-
+  const tasks = await Task.find()
+    .populate({ path: "driverId", select: "name email phone" })
+    .skip(skip)
+    .limit(limit);
   if (!tasks || tasks.length === 0) {
-    return next(new AppError("No tasks found for this manager", 404));
+    return next(new AppError("No tasks found", 404));
   }
 
   res.status(200).json({

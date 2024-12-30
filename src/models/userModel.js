@@ -72,12 +72,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please provide a client id"],
     },
-    tasks: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Task",
-      },
-    ],
+    // tasks: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "Task",
+    //   },
+    // ],
 
     createdAt: {
       type: Date,
@@ -115,13 +115,13 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-userSchema.pre(/^find/, function (next) {
-  this.populate({
-    path: "tasks",
-    select: "title description status startDate deadline createdAt",
-  });
-  next();
-});
+// userSchema.pre(/^find/, function (next) {
+//   this.populate({
+//     path: "tasks",
+//     select: "title description status startDate deadline createdAt",
+//   });
+//   next();
+// });
 
 userSchema.pre(/^find/, function (next) {
   this.find({ active: { $ne: false } });

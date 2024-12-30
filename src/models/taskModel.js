@@ -25,7 +25,7 @@ const taskSchema = new mongoose.Schema(
       type: Date,
       required: [true, "A task must have an end date"],
     },
-    managerId: {
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: [true, "A task must have a manager"],
@@ -65,6 +65,14 @@ const taskSchema = new mongoose.Schema(
     },
   }
 );
+
+// taskSchema.pre(/^find/, function (next) {
+//   this.populate({
+//     path: "driverId",
+//     select: "name email phone profilePicture",
+//   });
+//   next();
+// });
 
 const Task = mongoose.model("Task", taskSchema);
 

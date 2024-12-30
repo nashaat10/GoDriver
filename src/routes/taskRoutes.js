@@ -1,7 +1,7 @@
 import express from "express";
 import {
   createTask,
-  getAllTasksForManager,
+  getAllTasks,
   getAllTasksForDriver,
   getTaskById,
   updateTask,
@@ -16,7 +16,7 @@ router.use(protect);
 router
   .route("/")
   .post(restrictTo("manager", "admin"), createTask)
-  .get(restrictTo("manager", "admin"), getAllTasksForManager);
+  .get(restrictTo("manager", "admin"), getAllTasks);
 
 router.route("/length").get(restrictTo("admin"), getTasksLength);
 router
