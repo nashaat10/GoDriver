@@ -40,7 +40,7 @@ export const createTask = catchAsync(async (req, res, next) => {
 
 export const getAllTasks = catchAsync(async (req, res, next) => {
   const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 100;
+  const limit = req.query.limit * 1 || 10;
   const skip = (page - 1) * limit;
   const tasks = await Task.find()
     .populate({ path: "driverId", select: "name email phone" })
@@ -64,7 +64,7 @@ export const getAllTasksForDriver = catchAsync(async (req, res, next) => {
   const driverId = req.params.id;
 
   const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 100;
+  const limit = req.query.limit * 1 || 10;
   const skip = (page - 1) * limit;
 
   const tasks = await Task.find({ driverId }).skip(skip).limit(limit);
