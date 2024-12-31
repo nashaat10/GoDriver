@@ -165,3 +165,35 @@ export const getTasksLength = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+export const getTasksStatus = catchAsync(async (req, res, next) => {
+  //create aggregation pipeline to get count of every status of tasks
+  const status = await Task.aggregate([
+    {
+      $group: {
+        _id: "null",
+        totalTasks: { $sum: 1 },
+        pending: { $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] } },
+        inProgress: {
+          $sum: { $cond: [{ $eq: ["$status", "in-progress"] }, 1, 0] },
+        },
+        completed: {
+          $sum: { $cond: [{ $eq: ["$status", "completed"] }, 1, 0] },
+        },
+        delayed: { $sum: { $cond: [{ $eq: ["$status", "delayed"] }, 1, 0] } },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      status,
+    },
+  });
+});
