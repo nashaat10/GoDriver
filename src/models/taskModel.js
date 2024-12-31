@@ -28,7 +28,7 @@ const taskSchema = new mongoose.Schema(
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: [true, "A task must have a manager"],
+      // required: [true, "A task must have a manager"],
     },
     driverId: {
       type: mongoose.Schema.Types.ObjectId,
