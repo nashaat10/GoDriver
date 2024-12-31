@@ -5,7 +5,7 @@ import AppError from "../utils/appError.js";
 // Get all alerts
 export const getAllAlerts = catchAsync(async (req, res, next) => {
   const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 100;
+  const limit = req.query.limit * 1 || 10;
   const skip = (page - 1) * limit;
 
   const alerts = await Alert.find()
