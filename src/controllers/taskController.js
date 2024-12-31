@@ -83,9 +83,7 @@ export const getAllTasksForDriver = catchAsync(async (req, res, next) => {
 });
 
 export const getTaskById = catchAsync(async (req, res, next) => {
-  const task = await Task.findById(req.params.id).populate(
-    "managerId driverId"
-  );
+  const task = await Task.findById(req.params.id).populate("driverId");
 
   if (!task) {
     return next(new AppError("No task found with that ID", 404));
@@ -110,18 +108,14 @@ export const updateTask = catchAsync(async (req, res, next) => {
     return next(new AppError("No task found with that ID", 404));
   }
 
-  if (task.managerId.toString() !== req.user.id) {
-    return next(
-      new AppError("You are not authorized to update this task", 403)
-    );
-  }
-
   if (driverId) {
     const driver = await User.findOne({ _id: driverId, role: "driver" });
     if (!driver) {
       return next(new AppError("Driver not found", 404));
     }
   }
+
+  task.runValidators = false;
 
   task.title = title || task.title;
   task.description = description || task.description;
