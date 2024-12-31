@@ -42,8 +42,18 @@ export const getAllTasks = catchAsync(async (req, res, next) => {
   const page = req.query.page * 1 || 1;
   const limit = req.query.limit * 1 || 10;
   const skip = (page - 1) * limit;
+
+  const sort = {
+    createdAt: -1,
+  };
+
+  if (req.query.sort) {
+    sort[req.query.sort] = req.query.direction === "desc" ? -1 : 1;
+  }
+
   const tasks = await Task.find()
     .populate({ path: "driverId", select: "name email phone" })
+    .sort(sort)
     .skip(skip)
     .limit(limit);
   if (!tasks || tasks.length === 0) {
@@ -167,7 +177,6 @@ export const getTasksLength = catchAsync(async (req, res, next) => {
 });
 
 export const getTasksStatus = catchAsync(async (req, res, next) => {
-  //create aggregation pipeline to get count of every status of tasks
   const status = await Task.aggregate([
     {
       $group: {
