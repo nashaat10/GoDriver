@@ -5,8 +5,12 @@ const vehicleSchema = new mongoose.Schema(
     brand: { type: String, required: true },
     model: { type: String, required: true },
     year: { type: Number, required: true },
-    driverId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    plateNumber: { type: String, required: true, index: true },
+    driverId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      unique: true,
+    },
+    plateNumber: { type: String, required: true, index: true, unique: true },
   },
   {
     timestamps: true,
