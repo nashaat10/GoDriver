@@ -1,6 +1,6 @@
+import mongoose from "mongoose";
 import amqp from "amqplib";
 import dotenv from "dotenv";
-import Vehicle from "../models/vehicleModel.js"; // Import the Vehicle model
 
 dotenv.config();
 
@@ -24,6 +24,8 @@ const connectWithRetry = async () => {
 
 const generateVehicleData = async () => {
     try {
+        // Connect to MongoDB
+        await mongoose.connect("mongodb+srv://bawq2024:bawq2024@godriver.94a2j.mongodb.net/?retryWrites=true&w=majority&appName=GoDriver", { useNewUrlParser: true, useUnifiedTopology: true });
         const connection = await connectWithRetry();
         const channel = await connection.createChannel();
         const queue = "vehicle_data";
@@ -31,15 +33,15 @@ const generateVehicleData = async () => {
         await channel.assertQueue(queue);
         await channel.assertQueue(alertQueue);
 
-        // Fetch all vehicles to get their IDs
-        const vehicles = await Vehicle.find({}, '_id driverId');
+        // Fetch all vehicle IDs directly from the database
+        const vehicleIds = await mongoose.connection.db.collection('vehicles').find({}, { projection: { _id: 1, driverId: 1 } }).toArray();
 
         setInterval(async () => {
             const lat = parseFloat((Math.random() * (26.3 - 25.8) + 25.8).toFixed(6));
             const lon = parseFloat((Math.random() * (50.7 - 50.3) + 50.3).toFixed(6));
 
             // Select a random vehicle
-            const randomVehicle = vehicles[Math.floor(Math.random() * vehicles.length)];
+            const randomVehicle = vehicleIds[Math.floor(Math.random() * vehicleIds.length)];
 
             const vehicleData = {
                 vehicleId: randomVehicle._id, // Include vehicle ID
