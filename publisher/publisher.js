@@ -49,9 +49,9 @@ const generateVehicleData = async () => {
                 speed: Math.floor(Math.random() * 150),
                 fuelLevel: Math.floor(Math.random() * 100),
                 location: {
-                    type: "Point",
-                    coordinates: [lat, lon],
-                },
+                  latitude: lat, // Change to latitude
+                  longitude: lon, // Change to longitude
+              },
                 timestamp: new Date().toISOString(),
                 alerts: [],
             };
