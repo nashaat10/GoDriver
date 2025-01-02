@@ -7,6 +7,7 @@ import {
   updateTask,
   deleteTask,
   getTasksLength,
+  getTasksStatus,
 } from "../controllers/taskController.js";
 import { protect, restrictTo } from "../controllers/authController.js";
 
@@ -18,7 +19,10 @@ router
   .post(restrictTo("manager", "admin"), createTask)
   .get(restrictTo("manager", "admin"), getAllTasks);
 
+router.route("/status").get(restrictTo("admin"), getTasksStatus);
+
 router.route("/length").get(restrictTo("admin"), getTasksLength);
+
 router
   .route("/driver/:id")
   .get(restrictTo("driver", "manager", "admin"), getAllTasksForDriver);

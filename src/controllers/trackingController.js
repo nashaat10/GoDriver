@@ -1,6 +1,7 @@
 import { VehicleData } from "../models/vehicleData.js";
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
+import Task from "../models/taskModel.js";
 
 export const getAllVehicleData = catchAsync(async (req, res, next) => {
   const vehicleData = await VehicleData.find();
