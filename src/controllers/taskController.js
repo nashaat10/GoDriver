@@ -40,7 +40,7 @@ export const createTask = catchAsync(async (req, res, next) => {
 
 export const getAllTasks = catchAsync(async (req, res, next) => {
   const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 10;
+  const limit = req.query.limit * 1 || 100;
   const skip = (page - 1) * limit;
 
   const sort = {
@@ -56,7 +56,7 @@ export const getAllTasks = catchAsync(async (req, res, next) => {
     .sort(sort)
     .skip(skip)
     .limit(limit);
-  if (!tasks || tasks.length === 0) {
+  if (!tasks) {
     return next(new AppError("No tasks found", 404));
   }
 
@@ -77,6 +77,8 @@ export const getAllTasksForDriver = catchAsync(async (req, res, next) => {
   const limit = req.query.limit * 1 || 10;
   const skip = (page - 1) * limit;
 
+  const taskCount = await Task.countDocuments({ driverId });
+
   const tasks = await Task.find({ driverId }).skip(skip).limit(limit);
 
   if (!tasks || tasks.length === 0) {
@@ -85,6 +87,7 @@ export const getAllTasksForDriver = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
+    totalTasks: taskCount,
     results: tasks.length,
     currentPage: page,
     data: {

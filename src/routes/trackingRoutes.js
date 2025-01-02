@@ -10,9 +10,10 @@ router
   .route("/")
   .get(
     authController.restrictTo("admin", "manager"),
-    trackingController.getAllVehicleData
+    trackingController.getLastVehicleData
   );
 
 router.route("/:id").get(trackingController.getVehicleData);
 
+// router.route("/live/:id").get(trackingController.getVehicleLastLocation);
 export default router;
