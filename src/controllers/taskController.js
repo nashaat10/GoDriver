@@ -86,6 +86,7 @@ export const getAllTasksForDriver = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     results: tasks.length,
+    currentPage: page,
     data: {
       tasks,
     },
