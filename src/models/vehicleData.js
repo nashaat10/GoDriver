@@ -78,9 +78,11 @@ const vehicleDataSchema = new mongoose.Schema({
             enum: ['Point'],
             required: true,
         },
-        coordinates: {
-            type: [Number],
-            required: false,
+        lon:{
+            type: Number
+        },
+        lat:{
+            type:Number
         }
     },
     timestamp: {
