@@ -185,6 +185,9 @@ export const getTasksLength = catchAsync(async (req, res, next) => {
 export const getTasksStatus = catchAsync(async (req, res, next) => {
   const status = await Task.aggregate([
     {
+      $match: { isDeleted: false },
+    },
+    {
       $group: {
         _id: "null",
         totalTasks: { $sum: 1 },
