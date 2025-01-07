@@ -1,9 +1,6 @@
 import { VehicleData } from "../models/vehicleData.js";
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
-import Task from "../models/taskModel.js";
-
-//get only  the last location of all vehicles in the database
 
 export const getLastVehicleData = catchAsync(async (req, res, next) => {
   const vehicleData = await VehicleData.aggregate([

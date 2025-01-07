@@ -51,7 +51,7 @@ export const getAllTasks = catchAsync(async (req, res, next) => {
     sort[req.query.sort] = req.query.direction === "desc" ? -1 : 1;
   }
 
-  const tasks = await Task.find()
+  const tasks = await Task.find({ isDeleted: false })
     .populate({ path: "driverId", select: "name email phone" })
     .sort(sort)
     .skip(skip)
@@ -77,11 +77,13 @@ export const getAllTasksForDriver = catchAsync(async (req, res, next) => {
   const limit = req.query.limit * 1 || 10;
   const skip = (page - 1) * limit;
 
-  const taskCount = await Task.countDocuments({ driverId });
+  const taskCount = await Task.countDocuments({ driverId, isDeleted: false });
 
-  const tasks = await Task.find({ driverId }).skip(skip).limit(limit);
+  const tasks = await Task.find({ driverId, isDeleted: false })
+    .skip(skip)
+    .limit(limit);
 
-  if (!tasks || tasks.length === 0) {
+  if (!tasks) {
     return next(new AppError("No tasks found for this driver", 404));
   }
 

@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import Task from "./taskModel.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -114,14 +115,6 @@ userSchema.pre("save", async function (next) {
   this.confirmPassword = undefined;
   next();
 });
-
-// userSchema.pre(/^find/, function (next) {
-//   this.populate({
-//     path: "tasks",
-//     select: "title description status startDate deadline createdAt",
-//   });
-//   next();
-// });
 
 userSchema.pre(/^find/, function (next) {
   this.find({ active: { $ne: false } });
