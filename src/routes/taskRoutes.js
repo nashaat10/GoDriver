@@ -19,7 +19,7 @@ router
   .post(restrictTo("manager", "admin"), createTask)
   .get(restrictTo("manager", "admin"), getAllTasks);
 
-router.route("/status").get(restrictTo("admin"), getTasksStatus);
+router.route("/status").get(getTasksStatus);
 
 router.route("/length").get(restrictTo("admin"), getTasksLength);
 
