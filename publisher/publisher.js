@@ -49,6 +49,7 @@ const generateVehicleData = async () => {
                 speed: Math.floor(Math.random() * 150),
                 fuelLevel: Math.floor(Math.random() * 100),
                 location: {
+                  type:"point",
                   latitude: lat, // Change to latitude
                   longitude: lon, // Change to longitude
               },
