@@ -5,6 +5,7 @@ const vehicleSchema = new mongoose.Schema(
     brand: { type: String, required: true },
     model: { type: String, required: true },
     year: { type: Number, required: true },
+    isAvailable: { type: Boolean, default: false },
     driverId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

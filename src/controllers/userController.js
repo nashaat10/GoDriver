@@ -109,7 +109,7 @@ export const createDriver = catchAsync(async (req, res, next) => {
   if (vehicleId) {
     const vehicle = await Vehicle.findByIdAndUpdate(
       vehicleId,
-      { driverId: driver._id },
+      { driverId: driver._id, isAvailable: true },
       { new: true }
     );
 
