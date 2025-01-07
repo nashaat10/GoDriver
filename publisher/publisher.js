@@ -25,7 +25,7 @@ const connectWithRetry = async () => {
 const generateVehicleData = async () => {
     try {
         // Connect to MongoDB
-        await mongoose.connect("mongodb+srv://bawq2024:bawq2024@godriver.94a2j.mongodb.net/?retryWrites=true&w=majority&appName=GoDriver", { useNewUrlParser: true, useUnifiedTopology: true });
+        await mongoose.connect("mongodb+srv://bawq2024:bawq2024@godriver.94a2j.mongodb.net/?retryWrites=true&w=majority&appName=GoDriver");
         const connection = await connectWithRetry();
         const channel = await connection.createChannel();
         const queue = "vehicle_data";
