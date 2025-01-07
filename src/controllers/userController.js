@@ -7,6 +7,7 @@ import cloudinary from "cloudinary";
 import dotenv from "dotenv";
 import stream from "stream";
 import Vehicle from "../models/vehicleModel.js";
+import Task from "../models/taskModel.js";
 
 dotenv.config({ path: "../../config.env" });
 cloudinary.v2.config({
@@ -159,6 +160,8 @@ export const deleteDriver = catchAsync(async (req, res, next) => {
   if (!driver) {
     return next(new AppError("No driver found with that ID", 404));
   }
+
+  await Task.updateMany({ driverId: req.params.id }, { isDeleted: true });
   res.status(200).json({
     status: "success",
     message: "Driver deleted successfully",
