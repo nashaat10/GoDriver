@@ -55,11 +55,10 @@ const generateVehicleData = async () => {
         fuelLevel: Math.floor(Math.random() * 100),
         location: {
           type: "Point",
-          latitude: lat, // Change to latitude
-          longitude: lon, // Change to longitude
+          lon: lon, // Change to latitude
+          lat: lat, // Change to longitude
         },
-        timestamp: new Date().toISOString(),
-        alerts: [],
+        timestamp: new Date().toISOString()
       };
 
       console.log("Generated Vehicle Data:", vehicleData);
