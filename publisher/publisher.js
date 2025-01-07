@@ -32,7 +32,7 @@ const generateVehicleData = async () => {
     const alertQueue = "alerts";
     await channel.assertQueue(queue);
     await channel.assertQueue(alertQueue);
-
+    
     // Fetch all vehicle IDs directly from the database
     const vehicleIds = await mongoose.connection.db.collection('vehicles').find({}, { projection: { _id: 1, driverId: 1 } }).toArray();
 
@@ -46,17 +46,17 @@ const generateVehicleData = async () => {
 
       if (vehicleIds.length === 0) {
         console.error("No vehicles found in the database.");
-        return; // Exit if no vehicles are found
+        return; // if no vehicles are found
       }
       const vehicleData = {
-        vehicleId: randomVehicle._id, // Include vehicle ID
-        driverId: randomVehicle.driverId, // Include driver ID
+        vehicleId: randomVehicle._id,
+        driverId: randomVehicle.driverId,
         speed: Math.floor(Math.random() * 150),
         fuelLevel: Math.floor(Math.random() * 100),
         location: {
           type: "Point",
-          lon: lon, // Change to latitude
-          lat: lat, // Change to longitude
+          lon: lon,
+          lat: lat,
         },
         timestamp: new Date().toISOString()
       };
