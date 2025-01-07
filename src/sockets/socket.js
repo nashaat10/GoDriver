@@ -1,5 +1,4 @@
 import amqp from "amqplib/callback_api.js";
-
 import { getIO } from '../config/socket.js';
 
 export const setupSocketHandlers = () => {
@@ -19,7 +18,10 @@ export const setupSocketHandlers = () => {
                     return;
                 }
                 const alertQueue = 'alerts';
+                const vehicleDataQueue = 'vehicle_data'; // Ensure this queue is defined
+
                 channel.assertQueue(alertQueue);
+                channel.assertQueue(vehicleDataQueue); // Assert vehicle data queue
 
                 console.log("Consuming alert messages from the alert queue");
                 
@@ -37,6 +39,17 @@ export const setupSocketHandlers = () => {
                             timestamp: new Date(),
                             status: 'new'
                         });
+                    }
+                }, { noAck: true });
+
+                console.log("Consuming vehicle data messages from the vehicle data queue");
+                channel.consume(vehicleDataQueue, (msg) => {
+                    if (msg !== null) {
+                        const vehicleData = JSON.parse(msg.content.toString());
+                        console.log("Received Vehicle Data:", vehicleData);
+
+                        // Emit vehicle data to all connected clients
+                        io.emit('vehicleData', vehicleData);
                     }
                 }, { noAck: true });
             });
@@ -63,4 +76,4 @@ export const setupSocketHandlers = () => {
             console.log(`Client ${socket.id} unsubscribed from alerts`);
         });
     });
-};
+}
