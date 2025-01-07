@@ -46,7 +46,7 @@ export const getVehicle = catchAsync(async (req, res, next) => {
 });
 
 export const createVehicle = catchAsync(async (req, res, next) => {
-  const { brand, model, year, driverId, plateNumber } = req.body;
+  const { brand, model, year, plateNumber } = req.body;
 
   const vehicle = new Vehicle({
     brand,

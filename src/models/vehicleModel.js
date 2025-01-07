@@ -9,7 +9,6 @@ const vehicleSchema = new mongoose.Schema(
     driverId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      unique: true,
     },
     plateNumber: { type: String, required: true, index: true, unique: true },
   },
