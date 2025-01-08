@@ -1,31 +1,32 @@
 import mongoose from "mongoose";
 
+
 const messageSchema = new mongoose.Schema({
   sender: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    type: mongoose.Schema.types.ObjectId,
+    ref : "User",
     required: true,
   },
-  content: {
+  content:{
     type: String,
     required: true,
   },
-  timestamp: {
-    type: Date,
+  timestamp:{
+    type : Date,
     default: Date.now,
   },
   read: {
     type: Boolean,
     default: false,
-  },
-});
+  }
+})
 
 const chatSchema = new mongoose.Schema(
   {
-    participants: [
+    praticipant:[
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        type : mongoose.Schema.Types.ObjectId,
+        ref : "User",
         required: true,
       },
     ],
@@ -33,14 +34,15 @@ const chatSchema = new mongoose.Schema(
     lastMessage: {
       type: Date,
       default: Date.now,
-    },
+    }
   },
   {
-    timestamps: true,
+    timestamps : true,
   }
-);
+)
 
-const Chat = mongoose.model("Chat", chatSchema);
+const Chat = mongoose.model("Chat" , chatSchema);
 const Message = mongoose.model("Message", messageSchema);
 
-export default { Chat, Message };
+
+export default {Chat , Message};
