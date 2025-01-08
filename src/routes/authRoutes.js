@@ -16,8 +16,13 @@ router.post("/forgetPassword", authController.forgetPassword);
 router.post("/verify-otp", authController.verifyOTP);
 router.patch("/resetPassword", authController.resetPassword);
 router.get("/me", authController.protect, getMe, getUser);
-router.route("/updateMe").patch(uploadUserPhoto, resizeUserPhoto, updateMe);
-
+router.patch(
+  "/updateMe",
+  authController.protect,
+  uploadUserPhoto,
+  resizeUserPhoto,
+  updateMe
+);
 router.patch(
   "/updateMyPassword",
   authController.protect,
