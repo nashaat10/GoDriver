@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 const messageSchema = new mongoose.Schema({
   sender: {
-    type: mongoose.Schema.types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref : "User",
     required: true,
   },
@@ -41,8 +41,5 @@ const chatSchema = new mongoose.Schema(
   }
 )
 
-const Chat = mongoose.model("Chat" , chatSchema);
-const Message = mongoose.model("Message", messageSchema);
-
-
-export default {Chat , Message};
+export const Chat = mongoose.model("Chat", chatSchema);
+   export const Message = mongoose.model("Message", messageSchema);

@@ -13,6 +13,9 @@ import adminRoutes from "./src/routes/adminRoutes.js";
 import driverRoutes from "./src/routes/driverRoutes.js";
 import clientRoutes from "./src/routes/clientRoutes.js";
 import trackRoutes from "./src/routes/trackingRoutes.js";
+import chatRoutes  from "./src/routes/chatRoutes.js";
+
+
 
 const app = express();
 
@@ -51,7 +54,7 @@ app.get("/health", (_req, res) => {
 app.use("/api", limiter);
 // Routes
 app.use("/api/v1/tasks", taskRoutes);
-
+app.use("/api/v1/chats", chatRoutes);
 app.use("/api/v1/vehicles", vehicleRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/driver", driverRoutes);
