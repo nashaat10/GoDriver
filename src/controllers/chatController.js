@@ -66,7 +66,7 @@ export const joinChat = catchAsync(async (req, res) => {
     }
 
     // Add user to participants
-    chat.participants.push(userId);
+    chat.praticipant.push(userId);
     await chat.save();
 
     res.status(200).json({
