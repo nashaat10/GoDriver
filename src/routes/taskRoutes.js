@@ -30,7 +30,7 @@ router
 router
   .route("/:id")
   .get(restrictTo("manager", "driver", "admin"), getTaskById)
-  .patch(restrictTo("manager", "admin"), updateTask)
+  .patch(restrictTo("manager", "admin", "driver"), updateTask)
   .delete(restrictTo("manager", "admin"), deleteTask);
 
 export default router;

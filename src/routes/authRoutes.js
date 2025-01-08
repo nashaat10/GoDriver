@@ -1,5 +1,11 @@
 import * as authController from "../controllers/authController.js";
-import { getMe, getUser } from "../controllers/userController.js";
+import {
+  getMe,
+  getUser,
+  uploadUserPhoto,
+  resizeUserPhoto,
+  updateMe,
+} from "../controllers/userController.js";
 import express from "express";
 const router = express.Router();
 
@@ -10,7 +16,13 @@ router.post("/forgetPassword", authController.forgetPassword);
 router.post("/verify-otp", authController.verifyOTP);
 router.patch("/resetPassword", authController.resetPassword);
 router.get("/me", authController.protect, getMe, getUser);
-
+router.patch(
+  "/updateMe",
+  authController.protect,
+  uploadUserPhoto,
+  resizeUserPhoto,
+  updateMe
+);
 router.patch(
   "/updateMyPassword",
   authController.protect,

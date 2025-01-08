@@ -74,7 +74,11 @@ const generateVehicleData = async () => {
       // Check for alerts and publish data
       if (vehicleData.speed > 100) {
         const speedAlert = {
-          location: vehicleData.location,
+          location: {
+            type: "Point",
+            lon: lon,
+            lat: lat,
+          },
           alertTime: new Date().toISOString(),
           alertType: "speedAlert",
           message: `Vehicle speed ${vehicleData.speed} km/h exceeds limit of 100 km/h`,
@@ -87,7 +91,11 @@ const generateVehicleData = async () => {
       }
       if (vehicleData.fuelLevel < 20) {
         const fuelAlert = {
-          location: vehicleData.location,
+          location: {
+            type: "Point",
+            lon: lon,
+            lat: lat,
+          },
           alertTime: new Date().toISOString(),
           alertType: "lowFuel",
           message: `Vehicle fuel level is critically low at ${vehicleData.fuelLevel}%`,

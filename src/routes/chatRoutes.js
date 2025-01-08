@@ -8,7 +8,7 @@ router.use(protect);
 router.post("/", chatController.createChat);
 router.post("/send",chatController.sendMessages);
 router.get("/:chatId", chatController.getChatHistory);
-
+router.post("/:chatId/join", chatController.joinChat);
 
 export default router;
 
