@@ -51,7 +51,7 @@ export const joinChat = catchAsync(async (req, res) => {
     const { chatId } = req.params;
     const { userId } = req.body; // Assuming you send userId in the request body
 
-    // Logic to add the user to the chat (this could vary based on your requirements)
+    // Logic to add the user to the chat 
     const chat = await Chat.findById(chatId);
     if (!chat) {
         return next(new AppError("Chat not found", 404));
@@ -66,7 +66,7 @@ export const joinChat = catchAsync(async (req, res) => {
     }
 
     // Add user to participants
-    chat.praticipant.push(userId);
+    chat.participants.push(userId);
     await chat.save();
 
     res.status(200).json({

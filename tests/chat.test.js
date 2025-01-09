@@ -16,7 +16,7 @@ describe('Chat API', function() {
     console.log("Database is connected");
     // Create a chat for testing
     const chat = await Chat.create({
-      participants: ['user1', 'user2'],
+      participants: ["677d243da8bb6f3c657ce618", "677d24c2a8bb6f3c657ce627"],
       messages: [],
     });
     chatId = chat._id;
@@ -33,14 +33,14 @@ describe('Chat API', function() {
   it('should join a chat', async () => {
     const res = await request(app)
       .post(`/api/v1/chats/${chatId}/join`)
-      .send({ userId: 'user1' });
-
+      .send({ userId: '677d243da8bb6f3c657ce618' });
+      console.log('Join Chat Response:', res.body);
     expect(res.body).to.have.property('status', 'success');
   });
 
   it('should send a message', async () => {
     const message = {
-      sender: 'user1',
+      sender: '677d243da8bb6f3c657ce618',
       content: 'Hello, this is a test message!',
     };
 
