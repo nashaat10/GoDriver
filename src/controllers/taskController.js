@@ -173,7 +173,7 @@ export const deleteTask = catchAsync(async (req, res, next) => {
 });
 
 export const getTasksLength = catchAsync(async (req, res, next) => {
-  const tasks = await Task.countDocuments();
+  const tasks = await Task.countDocuments({ isDeleted: false });
   res.status(200).json({
     status: "success",
     data: {
