@@ -6,6 +6,7 @@ import { initSocket } from "./src/config/socket.js";
 import { setupAlertHandlers } from "./src/sockets/alertHandler.js";
 import { setupSocketHandlers } from "./src/sockets/socket.js";
 import { setupChatHandlers } from "./src/sockets/chatHandlers.js";
+import init from './src/services/fcm.js'
 
 dotenv.config({ path: "./config.env" });
 
@@ -25,7 +26,7 @@ const DB = process.env.DATABASE_URL;
 mongoose.connect(DB).then(() => {
   console.log("Database connection successful");
 });
-
+init().then(console.log())
 const port = process.env.PORT || 4000;
 server.listen(port, () => {
   console.log(`Server running on port ${port}`);
