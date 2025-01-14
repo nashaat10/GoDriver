@@ -174,50 +174,20 @@ export const deleteTask = catchAsync(async (req, res, next) => {
 });
 
 export const getTasksStatus = catchAsync(async (req, res, next) => {
+  const matchStage = { isDeleted: false };
+
+  // Check if a driver is logged in
+  if (req.user && req.user.role === "driver") {
+    matchStage.driverId = new Types.ObjectId(`${req.user.id}`);
+  }
+
   const status = await Task.aggregate([
     {
-      $match: { isDeleted: false },
+      $match: matchStage,
     },
     {
       $group: {
-        _id: "null",
-        totalTasks: { $sum: 1 },
-        pending: { $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] } },
-        inProgress: {
-          $sum: { $cond: [{ $eq: ["$status", "in-progress"] }, 1, 0] },
-        },
-        completed: {
-          $sum: { $cond: [{ $eq: ["$status", "completed"] }, 1, 0] },
-        },
-        delayed: { $sum: { $cond: [{ $eq: ["$status", "delayed"] }, 1, 0] } },
-      },
-    },
-    {
-      $project: {
-        _id: 0,
-      },
-    },
-  ]);
-
-  res.status(200).json({
-    status: "success",
-    data: {
-      status,
-    },
-  });
-});
-
-export const getTasksStatusForDriver = catchAsync(async (req, res, next) => {
-  const status = await Task.aggregate([
-    {
-      $match: {
-        isDeleted: false,
-        driverId: new Types.ObjectId(`${req.user.id}`),
-      },
-    },
-    {
-      $group: {
-        _id: "null",
+        _id: null,
         totalTasks: { $sum: 1 },
         pending: { $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] } },
         inProgress: {
