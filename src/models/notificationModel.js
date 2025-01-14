@@ -10,6 +10,12 @@ const notificationTokenSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+
+  clientId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Client",
+  },
+
   createdAt: {
     type: Date,
     default: Date.now,

@@ -6,7 +6,6 @@ export const sendNotification = catchAsync(async (req, res, next) => {
   const { title, body } = req.body;
   const userId = req.user.id;
 
-  // Fetch the notification token for the user
   const notificationToken = await NotificationToken.findOne({ userId });
 
   if (!notificationToken) {
@@ -24,7 +23,6 @@ export const sendNotification = catchAsync(async (req, res, next) => {
     },
   };
 
-  // Send the notification
   await fcmMessaging.send(message);
 
   res.status(200).json({
