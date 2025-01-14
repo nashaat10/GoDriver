@@ -7,7 +7,6 @@ const router = express.Router();
 router.use(authController.protect);
 router.use(authController.restrictTo("manager"));
 
-router.route("/me").get(userController.getMe, userController.getUser);
 router
   .route("/updateMe")
   .patch(

@@ -2,6 +2,7 @@ import Task from "../models/taskModel.js";
 import User from "../models/userModel.js";
 import AppError from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
+import { Types } from "mongoose";
 
 export const createTask = catchAsync(async (req, res, next) => {
   const { title, description, driverId, startDate, deadline } = req.body;
@@ -172,20 +173,48 @@ export const deleteTask = catchAsync(async (req, res, next) => {
   });
 });
 
-export const getTasksLength = catchAsync(async (req, res, next) => {
-  const tasks = await Task.countDocuments({ isDeleted: false });
-  res.status(200).json({
-    status: "success",
-    data: {
-      tasks,
-    },
-  });
-});
-
 export const getTasksStatus = catchAsync(async (req, res, next) => {
   const status = await Task.aggregate([
     {
       $match: { isDeleted: false },
+    },
+    {
+      $group: {
+        _id: "null",
+        totalTasks: { $sum: 1 },
+        pending: { $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] } },
+        inProgress: {
+          $sum: { $cond: [{ $eq: ["$status", "in-progress"] }, 1, 0] },
+        },
+        completed: {
+          $sum: { $cond: [{ $eq: ["$status", "completed"] }, 1, 0] },
+        },
+        delayed: { $sum: { $cond: [{ $eq: ["$status", "delayed"] }, 1, 0] } },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+      },
+    },
+  ]);
+
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      status,
+    },
+  });
+});
+
+export const getTasksStatusForDriver = catchAsync(async (req, res, next) => {
+  const status = await Task.aggregate([
+    {
+      $match: {
+        isDeleted: false,
+        driverId: new Types.ObjectId(`${req.user.id}`),
+      },
     },
     {
       $group: {

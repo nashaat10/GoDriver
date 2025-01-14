@@ -8,7 +8,6 @@ router.use(authController.protect);
 
 router.use(authController.restrictTo("driver"));
 
-router.route("/me").get(userController.getMe, userController.getUser);
 router
   .route("/updateMe")
   .patch(
