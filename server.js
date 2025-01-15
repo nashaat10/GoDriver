@@ -8,6 +8,8 @@ import { setupAlertHandlers } from "./src/sockets/alertHandler.js";
 import { setupSocketHandlers } from "./src/sockets/socket.js";
 import { setupChatHandlers } from "./src/sockets/chatHandlers.js";
 
+import "./src/services/consumeVehicleData.js";
+
 dotenv.config({ path: "./config.env" });
 
 // Create HTTP server
