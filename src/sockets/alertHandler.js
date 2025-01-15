@@ -43,27 +43,6 @@ export const emitAlert = async (alertData) => {
       timestamp: new Date(),
       status: "new",
     });
-    const clientTokens = await NotificationToken.findOne({
-      userId: alertData.driverId,
-    });
-
-    if (clientTokens) {
-      const message = {
-        token: clientTokens.token,
-        notification: {
-          title: newAlert.alertType,
-          body: newAlert.message,
-        },
-      };
-      await fcmMessaging
-        .send(message)
-        .then((response) => {
-          console.log("Successfully sent message:", response);
-        })
-        .catch((error) => {
-          console.error("Error sending message:", error);
-        });
-    }
 
     return savedAlert;
   } catch (error) {
