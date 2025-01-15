@@ -1,32 +1,29 @@
-import { fcmMessaging } from "../config/fcm.js";
 import NotificationToken from "../models/notificationModel.js";
 import catchAsync from "../utils/catchAsync.js";
 
-export const sendNotification = catchAsync(async (req, res, next) => {
-  const { title, body } = req.body;
-  const userId = req.user.id;
-
-  const notificationToken = await NotificationToken.findOne({ userId });
-
-  if (!notificationToken) {
-    return res.status(404).json({
-      status: "fail",
-      message: "Notification token not found for the user",
-    });
-  }
-
-  const message = {
-    token: notificationToken.token,
-    notification: {
-      title,
-      body,
+export const createOne = catchAsync(async (req, res, next) => {
+  const { clientId, id: userId } = req.user;
+  const { token } = req.body;
+  const notificationToken = await NotificationToken.create({
+    userId,
+    token,
+    clientId,
+  });
+  res.status(201).json({
+    status: "success",
+    data: {
+      notificationToken,
     },
-  };
+  });
+});
 
-  await fcmMessaging.send(message);
-
+export const getAll = catchAsync(async (req, res, next) => {
+  const notificationTokens = await NotificationToken.find();
   res.status(200).json({
     status: "success",
-    message: "Notification sent successfully",
+    results: notificationTokens.length,
+    data: {
+      notificationTokens,
+    },
   });
 });
