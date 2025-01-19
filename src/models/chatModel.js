@@ -1,45 +1,59 @@
-import mongoose from "mongoose";
-
+import mongoose from 'mongoose';
 
 const messageSchema = new mongoose.Schema({
   sender: {
     type: mongoose.Schema.Types.ObjectId,
-    ref : "User",
-    required: true,
+    ref: 'User',
+    required: true
   },
-  content:{
+  content: {
     type: String,
-    required: true,
+    required: true
   },
-  timestamp:{
-    type : Date,
-    default: Date.now,
+  timestamp: {
+    type: Date,
+    default: Date.now
   },
-  read: {
-    type: Boolean,
-    default: false,
-  }
-})
+  readBy: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    readAt: Date
+  }]
+});
 
-const chatSchema = new mongoose.Schema(
-  {
-    participants:[
-      {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : "User",
-        required: true,
-      },
-    ],
-    messages: [messageSchema],
-    lastMessage: {
-      type: Date,
-      default: Date.now,
+const chatSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    enum: ['private', 'group'],
+    required: true
+  },
+  name: {
+    type: String,
+    required: function() {
+      return this.type === 'group';
     }
   },
-  {
-    timestamps : true,
+  participants: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  lastMessage: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Message'
+  },
+  isActive: {
+    type: Boolean,
+    default: true
   }
-)
+}, {
+  timestamps: true
+});
 
-export const Chat = mongoose.model("Chat", chatSchema);
-   export const Message = mongoose.model("Message", messageSchema);
+export default mongoose.model('Chat', chatSchema);
