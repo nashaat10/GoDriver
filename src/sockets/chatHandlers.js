@@ -1,7 +1,7 @@
 import { getIO, logRoomMembers } from '../config/socket.js';
 import Chat from '../models/chatModel.js';
 import Message from '../models/message.js';
-import logger from '../utils/logger.js';
+// import logger from '../utils/logger.js';
 
 export const setupChatHandlers = () => {
   const io = getIO();
