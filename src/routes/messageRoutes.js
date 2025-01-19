@@ -1,7 +1,8 @@
 import express from 'express';
 import { body } from 'express-validator';
 import multer from 'multer';
-import { authenticate } from '../middleware/auth.js';
+// import { authenticate } from '../middleware/auth.js';
+import * as authController from "../controllers/authController.js";
 import Message from '../models/message.js';
 import Chat from '../models/chatModel.js';
 import { getIO } from '../config/socket.js';
@@ -33,8 +34,7 @@ const fileFilter = (req, file, cb) => {
 
 
   router.post('/', 
-    authenticate,
-    restrictTo('admin', 'manager', 'driver'),
+    authController.restrictTo('admin', 'manager', 'driver'),
     upload.array('attachments', 10),
     [
       body('chatId').isMongoId().withMessage('Invalid chat ID'),
@@ -112,7 +112,6 @@ const fileFilter = (req, file, cb) => {
 
 // Get message history
 router.get('/:chatId', 
-  authenticate, 
   catchAsync(async (req, res, next) => {
     const { chatId } = req.params;
     const { before } = req.query;
@@ -139,8 +138,7 @@ router.get('/:chatId',
 );
 
 // Delete message
-router.delete('/:messageId', 
-  authenticate,
+router.delete('/:messageId',
   catchAsync(async (req, res, next) => {
     const message = await Message.findById(req.params.messageId);
     if (!message) {
