@@ -2,6 +2,8 @@ import Chat from "../models/chatModel.js";
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
 import { getIO } from '../config/socket.js';
+import User from "../models/userModel.js";
+
 
 export const createChat = catchAsync(async (req, res, next) => {
     const { participants, type, name } = req.body;
