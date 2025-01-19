@@ -1,24 +1,24 @@
-import { getIO } from '../config/socket.js';
-import { Alert } from '../models/vehicleData.js';
-import Vehicle from '../models/vehicleModel.js';
+import { getIO } from "../config/socket.js";
+import { Alert } from "../models/vehicleData.js";
+import Vehicle from "../models/vehicleModel.js";
 
 export const setupAlertHandlers = () => {
   const io = getIO();
-  io.on('connection', (socket) => {
-    console.log('Client connected to alert handler');
+  io.on("connection", (socket) => {
+    console.log("Client connected to alert handler");
 
-    socket.on('subscribeToAlerts', () => {
-      socket.join('alerts-room');
+    socket.on("subscribeToAlerts", () => {
+      socket.join("alerts-room");
       console.log(`Client ${socket.id} subscribed to alerts`);
     });
 
-    socket.on('unsubscribeFromAlerts', () => {
-      socket.leave('alerts-room');
+    socket.on("unsubscribeFromAlerts", () => {
+      socket.leave("alerts-room");
       console.log(`Client ${socket.id} unsubscribed from alerts`);
     });
 
-    socket.on('disconnect', () => {
-      console.log('Client disconnected from alert handler');
+    socket.on("disconnect", () => {
+      console.log("Client disconnected from alert handler");
     });
   });
 };
@@ -26,30 +26,30 @@ export const setupAlertHandlers = () => {
 export const emitAlert = async (alertData) => {
   const io = getIO();
   try {
-    const vehicles = await Vehicle.find({}, '_id driverId');
+    const vehicles = await Vehicle.find({}, "_id driverId");
     const randomVehicle = vehicles[Math.floor(Math.random() * vehicles.length)];
     alertData.driverId = randomVehicle.driverId;
     alertData.vehicleId = randomVehicle._id;
-    
+
     const newAlert = new Alert(alertData);
     const savedAlert = await newAlert.save();
-    
-    const populatedAlert = await Alert.findById(savedAlert._id)
-      .populate('driverId', 'name')
-      .populate('vehicleId', 'vehicleNumber');
 
-    io.to('alerts-room').emit('newAlert', {
+    const populatedAlert = await Alert.findById(savedAlert._id)
+      .populate("driverId", "name")
+      .populate("vehicleId", "vehicleNumber");
+
+    io.to("alerts-room").emit("newAlert", {
       alert: populatedAlert,
       timestamp: new Date(),
-      status: 'new'
+      status: "new",
     });
 
     return savedAlert;
   } catch (error) {
-    console.error('Error emitting alert:', error);
-    io.to('alerts-room').emit('alertError', {
-      error: 'Failed to process alert',
-      timestamp: new Date()
+    console.error("Error emitting alert:", error);
+    io.to("alerts-room").emit("alertError", {
+      error: "Failed to process alert",
+      timestamp: new Date(),
     });
     throw error;
   }

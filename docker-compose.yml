@@ -28,18 +28,18 @@ services:
       - DATABASE_URL=mongodb+srv://bawq2024:bawq2024@godriver.94a2j.mongodb.net/?retryWrites=true&w=majority&appName=GoDriver
     restart: on-failure
 
-  consumer:
-    container_name: godriver-consumer
-    build:
-      context: .
-      dockerfile: Dockerfile.consumer
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-    environment:
-      - RABBITMQ_URL=amqp://rabbitmq
-      - DATABASE_URL=mongodb+srv://bawq2024:bawq2024@godriver.94a2j.mongodb.net/?retryWrites=true&w=majority&appName=GoDriver
-    restart: on-failure
+  # consumer:
+  #   container_name: godriver-consumer
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.consumer
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy
+  #   environment:
+  #     - RABBITMQ_URL=amqp://rabbitmq
+  #     - DATABASE_URL=mongodb+srv://bawq2024:bawq2024@godriver.94a2j.mongodb.net/?retryWrites=true&w=majority&appName=GoDriver
+  #   restart: on-failure
 
   rabbitmq:
     container_name: rabbitmq01

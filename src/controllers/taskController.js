@@ -2,6 +2,7 @@ import Task from "../models/taskModel.js";
 import User from "../models/userModel.js";
 import AppError from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
+import { Types } from "mongoose";
 
 export const createTask = catchAsync(async (req, res, next) => {
   const { title, description, driverId, startDate, deadline } = req.body;
@@ -172,24 +173,21 @@ export const deleteTask = catchAsync(async (req, res, next) => {
   });
 });
 
-export const getTasksLength = catchAsync(async (req, res, next) => {
-  const tasks = await Task.countDocuments({ isDeleted: false });
-  res.status(200).json({
-    status: "success",
-    data: {
-      tasks,
-    },
-  });
-});
-
 export const getTasksStatus = catchAsync(async (req, res, next) => {
+  const matchStage = { isDeleted: false };
+
+  // Check if a driver is logged in
+  if (req.user && req.user.role === "driver") {
+    matchStage.driverId = new Types.ObjectId(`${req.user.id}`);
+  }
+
   const status = await Task.aggregate([
     {
-      $match: { isDeleted: false },
+      $match: matchStage,
     },
     {
       $group: {
-        _id: "null",
+        _id: null,
         totalTasks: { $sum: 1 },
         pending: { $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] } },
         inProgress: {
