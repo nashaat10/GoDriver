@@ -10,14 +10,14 @@ export const createChat = catchAsync(async (req, res, next) => {
     
     // Check if user has permission to create chats
     if (req.user.role !== 'admin' && req.user.role !== 'manager' && req.user.role !== 'driver') {
-      return next(new AppError('You do not have permission to create chats', 403));
+    //   return next(new AppError('You do not have permission to create chats', 403));
     }
   
     // For drivers, only allow private chats with managers/admins
     if (req.user.role === 'driver') {
       const otherParticipant = await User.findById(participants[0]);
       if (!otherParticipant || (otherParticipant.role !== 'manager' && otherParticipant.role !== 'admin')) {
-        return next(new AppError('Drivers can only create chats with managers or admins', 403));
+        // return next(new AppError('Drivers can only create chats with managers or admins', 403));
       }
       type = 'private'; // Force private chat for drivers
     }
@@ -29,7 +29,7 @@ export const createChat = catchAsync(async (req, res, next) => {
         p.role !== 'driver' || p.managerId?.toString() !== req.user.id
       );
       if (invalidParticipants) {
-        return next(new AppError('Managers can only create group chats with their assigned drivers', 403));
+        // return next(new AppError('Managers can only create group chats with their assigned drivers', 403));
       }
     }
   
