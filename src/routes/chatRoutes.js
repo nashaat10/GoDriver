@@ -1,35 +1,32 @@
-import express from 'express';
-import { body } from 'express-validator';
-import { authenticate } from '../middleware/auth.js';
-import * as chatController from '../controllers/chatController.js';
-import catchAsync from '../utils/catchAsync.js';
-import Message from '../models/message.js';
+import express from "express";
+import { body } from "express-validator";
+import { authenticate } from "../middleware/auth.js";
+import * as chatController from "../controllers/chatController.js";
+import catchAsync from "../utils/catchAsync.js";
+import Message from "../models/message.js";
 
 const router = express.Router();
-
 
 router.use(authenticate);
 
 // Create chat
-router.post('/',
+router.post(
+  "/",
   [
-    body('participants').isArray().notEmpty(),
-    body('type').isIn(['private', 'group']),
-    body('name').if(body('type').equals('group')).notEmpty()
+    body("participants").isArray().notEmpty(),
+    body("type").isIn(["private", "group"]),
+    body("name").if(body("type").equals("group")).notEmpty(),
   ],
-  catchAsync(chatController.createChat)
+  chatController.createChat
 );
 
 // Get user's chats
-router.get('/', catchAsync(chatController.getUserChats));
+router.get("/", catchAsync(chatController.getUserChats));
 
 // Get chat history
-router.get('/:chatId', catchAsync(chatController.getChatHistory));
+router.get("/:chatId", catchAsync(chatController.getChatHistory));
 
 export default router;
-
-
-
 
 // // Get user's chats
 // router.get('/', authenticate, async (req, res) => {
@@ -54,7 +51,7 @@ export default router;
 //   async (req, res) => {
 //     try {
 //       const { type, name, participants } = req.body;
-      
+
 //       if (type === 'private' && participants.length !== 1) {
 //         return res.status(400).json({
 //           message: 'Private chat must have exactly one participant'
