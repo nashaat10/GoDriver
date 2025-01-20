@@ -1,62 +1,67 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const messageSchema = new mongoose.Schema({
-  sender: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  content: {
-    type: String,
-    required: true
-  },
-  timestamp: {
-    type: Date,
-    default: Date.now
-  },
-  readBy: [{
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
+// const messageSchema = new mongoose.Schema({
+//   sender: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User',
+//     required: true
+//   },
+//   content: {
+//     type: String,
+//     required: true
+//   },
+//   timestamp: {
+//     type: Date,
+//     default: Date.now
+//   },
+//   readBy: [{
+//     user: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: 'User'
+//     },
+//     readAt: Date
+//   }]
+// });
+
+const chatSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      enum: ["private", "group"],
+      required: true,
     },
-    readAt: Date
-  }]
-});
-
-const chatSchema = new mongoose.Schema({
-  type: {
-    type: String,
-    enum: ['private', 'group'],
-    required: true
+    name: {
+      type: String,
+      required: function () {
+        return this.type === "group";
+      },
+    },
+    participants: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    lastMessage: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Message",
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
   },
-  name: {
-    type: String,
-    required: function() {
-      return this.type === 'group';
-    }
-  },
-  participants: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  lastMessage: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Message'
-  },
-  isActive: {
-    type: Boolean,
-    default: true
+  {
+    timestamps: true,
   }
-}, {
-  timestamps: true
-});
+);
 
-export default mongoose.model('Chat', chatSchema);
+export default mongoose.model("Chat", chatSchema);
 
 //     POST /api/chats
 // Headers: { "Authorization": "Bearer {token}" }
