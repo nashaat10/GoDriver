@@ -8,11 +8,23 @@ import Chat from '../models/chatModel.js';
 import { getIO } from '../config/socket.js';
 import catchAsync from '../utils/catchAsync.js';
 import AppError from '../utils/appError.js';
-import { uploadToS3, getSignedFileUrl } from '../utils/s3Upload.js';
+// import { uploadToS3, getSignedFileUrl } from '../utils/s3Upload.js';
 
 const router = express.Router();
 
 // Add after multer configuration (around line 13)
+
+const storage = multer.diskStorage ({
+
+    destination: (req,file,cb)=>{
+        cb(null, 'uploads/');
+    },
+    filename: (req,file,cb)=>{
+        cb(null , Date.now() + '-' + file.originalname)
+    }
+});
+
+
 const fileFilter = (req, file, cb) => {
     const allowedTypes = ['image', 'video', 'audio', 'application'];
     const fileType = file.mimetype.split('/')[0];
@@ -58,17 +70,15 @@ const fileFilter = (req, file, cb) => {
       return next(new AppError('Not a chat participant', 403));
     }
 
-    const attachments = [];
-    if (req.files?.length) {
-      for (const file of req.files) {
-        const fileData = await uploadToS3(file);
-        const signedUrl = await getSignedFileUrl(fileData.key);
-        attachments.push({
-          ...fileData,
-          url: signedUrl
-        });
-      }
-    }
+    const attachments = req.files.map(file =>({
+        type: file.mimetype.split('/')[0],
+        key: file.filename,
+        url: `/uploads/${file.filename}`,
+        originalname: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size
+      }));
+
 
     const message = await Message.create({
       chat: chatId,
@@ -84,15 +94,7 @@ const fileFilter = (req, file, cb) => {
 
     const populatedMessage = await message.populate(['sender', 'replyTo']);
 
-    // Generate signed URLs for all attachments
-    if (populatedMessage.attachments?.length) {
-      populatedMessage.attachments = await Promise.all(
-        populatedMessage.attachments.map(async (attachment) => ({
-          ...attachment.toObject(),
-          url: await getSignedFileUrl(attachment.key)
-        }))
-      );
-    }
+
     const io = getIO();
     chat.participants.forEach(participantId => {
       io.to(`user_${participantId}`).emit('newMessage', {
