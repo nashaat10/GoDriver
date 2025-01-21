@@ -63,13 +63,34 @@ export const getAlertsByType = catchAsync(async (req, res, next) => {
   });
 });
 
-export const getAlertsLength = catchAsync(async (req, res, next) => {
-  const alertsLength = await Alert.countDocuments();
+export const getAlertStats = catchAsync(async (req, res, next) => {
+  const stats = await Alert.aggregate([
+    {
+      $group: {
+        _id: null,
+        numAlerts: { $sum: 1 },
+        overSpeed: {
+          $sum: { $cond: [{ $eq: ["$alertType", "speedAlert"] }, 1, 0] },
+        },
+        maintenance: {
+          $sum: { $cond: [{ $eq: ["$alertType", "maintenance"] }, 1, 0] },
+        },
+        lowFuel: {
+          $sum: { $cond: [{ $eq: ["$alertType", "lowFuel"] }, 1, 0] },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+      },
+    },
+  ]);
 
   res.status(200).json({
     status: "success",
     data: {
-      alertsLength,
+      stats,
     },
   });
 });

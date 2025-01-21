@@ -1,13 +1,14 @@
 import express from "express";
 import { body } from "express-validator";
 import { authenticate } from "../middleware/auth.js";
+import { protect, restrictTo } from "../controllers/authController.js";
 import * as chatController from "../controllers/chatController.js";
 import catchAsync from "../utils/catchAsync.js";
 import Message from "../models/message.js";
 
 const router = express.Router();
 
-router.use(authenticate);
+router.use(protect);
 
 // Create chat
 router.post(
@@ -21,10 +22,10 @@ router.post(
 );
 
 // Get user's chats
-router.get("/", catchAsync(chatController.getUserChats));
+router.get("/", chatController.getUserChats);
 
 // Get chat history
-router.get("/:chatId", catchAsync(chatController.getChatHistory));
+router.get("/:chatId", chatController.getChatHistory);
 
 export default router;
 
