@@ -3,24 +3,26 @@ import mongoose from "mongoose";
 // const messageSchema = new mongoose.Schema({
 //   sender: {
 //     type: mongoose.Schema.Types.ObjectId,
-//     ref: 'User',
-//     required: true
+//     ref: "User",
+//     required: true,
 //   },
 //   content: {
 //     type: String,
-//     required: true
+//     required: true,
 //   },
 //   timestamp: {
 //     type: Date,
-//     default: Date.now
+//     default: Date.now,
 //   },
-//   readBy: [{
-//     user: {
-//       type: mongoose.Schema.Types.ObjectId,
-//       ref: 'User'
+//   readBy: [
+//     {
+//       user: {
+//         type: mongoose.Schema.Types.ObjectId,
+//         ref: "User",
+//       },
+//       readAt: Date,
 //     },
-//     readAt: Date
-//   }]
+//   ],
 // });
 
 const chatSchema = new mongoose.Schema(
