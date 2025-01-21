@@ -13,8 +13,9 @@ import adminRoutes from "./src/routes/adminRoutes.js";
 import driverRoutes from "./src/routes/driverRoutes.js";
 import clientRoutes from "./src/routes/clientRoutes.js";
 import trackRoutes from "./src/routes/trackingRoutes.js";
-import chatRoutes from "./src/routes/chatRoutes.js";
-import notificationRoutes from "./src/routes/notificationRoutes.js";
+import chatRoutes  from "./src/routes/chatRoutes.js";
+import messageRoutes from "./src/routes/messageRoutes.js";
+
 
 const app = express();
 
@@ -62,8 +63,7 @@ app.use("/api/v1/manager", managerRoutes);
 app.use("/api/v1/client", clientRoutes);
 app.use("/api/v1/alerts", alertRoutes);
 app.use("/api/v1/tracking", trackRoutes);
-app.use("/api/v1/notifications", notificationRoutes);
-
+app.use("/api/v1/messages", messageRoutes);
 // Handle undefined routes
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
