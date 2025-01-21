@@ -3,7 +3,7 @@ import {
   getAllAlerts,
   getAlertsByType,
   getAlertsByVehicle,
-  getAlertsLength,
+  getAlertStats,
 } from "../controllers/alertController.js";
 
 import { protect, restrictTo } from "../controllers/authController.js";
@@ -15,7 +15,7 @@ router.use(restrictTo("admin", "manager"));
 
 router.get("/", getAllAlerts);
 
-router.get("/length", getAlertsLength);
+router.get("/stats", getAlertStats);
 
 router.get("/:id", getAlertsByVehicle);
 
