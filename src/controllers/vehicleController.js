@@ -89,3 +89,14 @@ export const getVehiclesLength = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+export const deleteVehicle = catchAsync(async (req, res, next) => {
+  const vehicle = await Vehicle.findByIdAndDelete(req.params.id);
+  if (!vehicle) {
+    return next(new AppError("No vehicle found with that ID", 404));
+  }
+  res.status(204).json({
+    status: "success",
+    data: null,
+  });
+});
