@@ -24,7 +24,6 @@ export const getAllAlerts = catchAsync(async (req, res, next) => {
   });
 });
 
-// Get alerts by vehicle
 export const getAlertsByVehicle = catchAsync(async (req, res, next) => {
   const alerts = await Alert.find({ vehicleId: req.params.id })
     .populate("driverId", "name")
@@ -43,7 +42,6 @@ export const getAlertsByVehicle = catchAsync(async (req, res, next) => {
   });
 });
 
-// Get alerts by type
 export const getAlertsByType = catchAsync(async (req, res, next) => {
   const alerts = await Alert.find({ alertType: req.params.alertType })
     .populate("driverId", "name")
