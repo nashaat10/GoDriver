@@ -2,9 +2,14 @@ import { verifyToken } from '../utils/auth.js';
 import User from '../models/user.js';
 import Message from '../models/message.js';
 import Chat from '../models/chatModel.js';
-import logger from '../utils/logger.js';
+import {getIO} from '../config/socket.js'
+// import logger from '../utils/logger.js';
 
-export const setupWebSocket = (io) => {
+export const setupChatHandlers = () => {
+
+  const io = getIO();
+
+
   io.use(async (socket, next) => {
     try {
       const token = socket.handshake.auth.token;
