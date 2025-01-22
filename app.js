@@ -13,9 +13,9 @@ import adminRoutes from "./src/routes/adminRoutes.js";
 import driverRoutes from "./src/routes/driverRoutes.js";
 import clientRoutes from "./src/routes/clientRoutes.js";
 import trackRoutes from "./src/routes/trackingRoutes.js";
-import chatRoutes  from "./src/routes/chatRoutes.js";
+import chatRoutes from "./src/routes/chatRoutes.js";
 import messageRoutes from "./src/routes/messageRoutes.js";
-
+import "./src/services/consumeVehicleData.js";
 
 const app = express();
 

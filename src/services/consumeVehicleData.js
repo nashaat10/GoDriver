@@ -105,6 +105,9 @@ const consumeVehicleData = async () => {
                 },
               };
               try {
+                if (!fcmMessaging) {
+                  console.log("fcmMessaging  inti>>>>", fcmMessaging);
+                }
                 await fcmMessaging.send(message);
                 console.log("Successfully sent message:", message);
               } catch (error) {
