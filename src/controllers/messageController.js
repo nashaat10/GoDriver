@@ -17,6 +17,8 @@ export const createMessage = catchAsync(async (req, res, next) => {
     return next(new AppError("Not a chat participant", 403));
   }
 
+
+  // AWS s3
   const attachments = [];
   if (req.files?.length) {
     for (const file of req.files) {
