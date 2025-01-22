@@ -7,7 +7,7 @@ import Chat from "../models/chatModel.js";
 import { getIO } from "../config/socket.js";
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
-import { uploadToS3, getSignedFileUrl } from "../utils/s3Upload.js";
+// import { uploadToS3, getSignedFileUrl } from "../utils/s3Upload.js";
 
 const router = express.Router();
 router.use(authController.protect);
