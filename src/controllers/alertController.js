@@ -24,7 +24,6 @@ export const getAllAlerts = catchAsync(async (req, res, next) => {
   });
 });
 
-// Get alerts by vehicle
 export const getAlertsByVehicle = catchAsync(async (req, res, next) => {
   const alerts = await Alert.find({ vehicleId: req.params.id })
     .populate("driverId", "name")
@@ -43,7 +42,6 @@ export const getAlertsByVehicle = catchAsync(async (req, res, next) => {
   });
 });
 
-// Get alerts by type
 export const getAlertsByType = catchAsync(async (req, res, next) => {
   const alerts = await Alert.find({ alertType: req.params.alertType })
     .populate("driverId", "name")
@@ -63,13 +61,34 @@ export const getAlertsByType = catchAsync(async (req, res, next) => {
   });
 });
 
-export const getAlertsLength = catchAsync(async (req, res, next) => {
-  const alertsLength = await Alert.countDocuments();
+export const getAlertStats = catchAsync(async (req, res, next) => {
+  const stats = await Alert.aggregate([
+    {
+      $group: {
+        _id: null,
+        numAlerts: { $sum: 1 },
+        overSpeed: {
+          $sum: { $cond: [{ $eq: ["$alertType", "speedAlert"] }, 1, 0] },
+        },
+        maintenance: {
+          $sum: { $cond: [{ $eq: ["$alertType", "maintenance"] }, 1, 0] },
+        },
+        lowFuel: {
+          $sum: { $cond: [{ $eq: ["$alertType", "lowFuel"] }, 1, 0] },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+      },
+    },
+  ]);
 
   res.status(200).json({
     status: "success",
     data: {
-      alertsLength,
+      stats,
     },
   });
 });

@@ -1,6 +1,5 @@
 import express from "express";
 import { body } from "express-validator";
-import { authenticate } from "../middleware/auth.js";
 import { protect, restrictTo } from "../controllers/authController.js";
 import * as chatController from "../controllers/chatController.js";
 import catchAsync from "../utils/catchAsync.js";

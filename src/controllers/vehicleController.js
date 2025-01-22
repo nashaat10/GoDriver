@@ -52,7 +52,6 @@ export const createVehicle = catchAsync(async (req, res, next) => {
     brand,
     model,
     year,
-    driverId,
     plateNumber,
   });
 
