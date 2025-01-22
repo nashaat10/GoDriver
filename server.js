@@ -2,37 +2,41 @@ import app from "./app.js";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import http from "http";
-import { initSocket } from "./src/config/socket.js";
 import { setupAlertHandlers } from "./src/sockets/alertHandler.js";
 import { setupSocketHandlers } from "./src/sockets/socket.js";
 import { setupChatHandlers } from "./src/sockets/chatSocket.js";
-import init from './src/services/fcm.js'
+import init from "./src/config/fcm.js";
+import { initSocket } from "./src/config/socket.js";
+import { fcmMessaging } from "./src/config/fcm.js";
 
-dotenv.config({ path: "./config.env" });
+(async () => {
+  try {
+    dotenv.config({ path: "./config.env" });
 
-// Create HTTP server
-const server = http.createServer(app);
+    // Create HTTP server
+    const server = http.createServer(app);
 
-// Initialize Socket.IO
-const io = initSocket(server);
+    // Initialize Socket.IO
 
-// Setup alert handlers
-setupSocketHandlers();
-setupChatHandlers();
-setupAlertHandlers();
+    // Setup alert handlers
+    initSocket(server);
+    setupSocketHandlers();
+    setupChatHandlers();
+    setupAlertHandlers();
 
-const DB = process.env.DATABASE_URL;
+    const DB = process.env.DATABASE_URL;
 
-mongoose.connect(DB).then(() => {
-  console.log("Database connection successful");
-});
-init().then(console.log())
-const port = process.env.PORT || 4000;
-server.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+    await init();
+    console.log("fcmMessaging", fcmMessaging);
+    const dbConnection = await mongoose.connect(DB);
+    console.log("Connected to Mongo DB: ", dbConnection.connections[0].name);
 
-
-
-
-export default server;
+    const port = process.env.PORT || 4000;
+    server.listen(port, () => {
+      console.log(`Server running on port ${port}`);
+    });
+  } catch (error) {
+    console.error("Error starting server:", error);
+    process.exit(1);
+  }
+})();
