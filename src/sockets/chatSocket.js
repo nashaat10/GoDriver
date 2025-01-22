@@ -1,5 +1,5 @@
-import { verifyToken } from '../utils/auth.js';
-import User from '../models/user.js';
+import { verifyToken } from '../middleware/auth.js'
+import User from '../models/userModel.js';
 import Message from '../models/message.js';
 import Chat from '../models/chatModel.js';
 import {getIO} from '../config/socket.js'
