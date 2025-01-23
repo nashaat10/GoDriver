@@ -3,7 +3,7 @@ import { body } from "express-validator";
 import { protect, restrictTo } from "../controllers/authController.js";
 import * as chatController from "../controllers/chatController.js";
 import catchAsync from "../utils/catchAsync.js";
-import Message from "../models/message.js";
+import Message from "../models/messageModel.js";
 
 const router = express.Router();
 

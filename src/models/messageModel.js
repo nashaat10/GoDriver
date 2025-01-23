@@ -48,41 +48,10 @@ const messageSchema = new mongoose.Schema(
         },
       },
     ],
-    readBy: [
-      {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
-        readAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
-    replyTo: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Message",
-    },
-    reactions: [
-      {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
-        emoji: String,
-      },
-    ],
     isEdited: {
       type: Boolean,
       default: false,
     },
-    editHistory: [
-      {
-        content: String,
-        editedAt: Date,
-      },
-    ],
     isDeleted: {
       type: Boolean,
       default: false,
@@ -92,13 +61,34 @@ const messageSchema = new mongoose.Schema(
       enum: ["sent", "delivered", "read"],
       default: "sent",
     },
+    readBy: [
+      {
+        user: {
+          type: mongoose.Types.ObjectId,
+          ref: "User",
+        },
+        readAt: Date,
+      },
+    ],
+    reactions: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        reaction: String,
+      },
+    ],
+    editHistory: [
+      {
+        editedAt: Date,
+        editedContent: String,
+      },
+    ],
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-messageSchema.index({ "content.text": "text" });
-messageSchema.index({ chat: 1, createdAt: -1 });
+const Message = mongoose.model("Message", messageSchema);
 
-export default mongoose.model("Message", messageSchema);
+export default Message;

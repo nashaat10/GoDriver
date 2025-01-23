@@ -1,79 +1,68 @@
-import Message from "../models/message.js";
-import Chat from "../models/chatModel.js";
-import { getIO } from "../config/socket.js";
+import Message from "../models/messageModel.js";
 import AppError from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
-// import { uploadToS3, getSignedFileUrl } from "../utils/s3Upload.js";
+import { getIO } from "../config/socket.js";
+import multer from "multer";
+import sharp from "sharp";
+// Create a new messageS
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
+}).array("attachments");
 
 export const createMessage = catchAsync(async (req, res, next) => {
-  const { chatId, content, replyTo } = req.body;
-
-  const chat = await Chat.findById(chatId);
-  if (!chat) {
-    return next(new AppError("Chat not found", 404));
-  }
-
-  if (!chat.participants.includes(req.user.id)) {
-    return next(new AppError("Not a chat participant", 403));
-  }
-
-
-  // AWS s3
-  const attachments = [];
-  if (req.files?.length) {
-    for (const file of req.files) {
-      const fileData = await uploadToS3(file);
-      const signedUrl = await getSignedFileUrl(fileData.key);
-      attachments.push({
-        ...fileData,
-        url: signedUrl,
-      });
+  upload(req, res, async (err) => {
+    if (err) {
+      return next(new AppError("File upload error", 400));
     }
-  }
 
-  const message = await Message.create({
-    chat: chatId,
-    sender: req.user.id,
-    content,
-    attachments,
-    replyTo,
-  });
+    const senderId = req.user.id;
+    const { chatId, content } = req.body;
+    const attachments = req.files
+      ? req.files.map((file) => ({
+          type: file.mimetype.split("/")[0],
+          key: file.filename,
+          url: file.path,
+          originalname: file.originalname,
+          mimetype: file.mimetype,
+          size: file.size,
+          metadata: {
+            width: file.width,
+            height: file.height,
+            duration: file.duration,
+          },
+        }))
+      : req.body.attachments || [];
 
-  await Chat.findByIdAndUpdate(chatId, {
-    lastMessage: message._id,
-  });
-
-  const populatedMessage = await message.populate(["sender", "replyTo"]);
-
-  // Generate signed URLs for all attachments
-  if (populatedMessage.attachments?.length) {
-    populatedMessage.attachments = await Promise.all(
-      populatedMessage.attachments.map(async (attachment) => ({
-        ...attachment.toObject(),
-        url: await getSignedFileUrl(attachment.key),
-      }))
-    );
-  }
-  const io = getIO();
-  chat.participants.forEach((participantId) => {
-    io.to(`user_${participantId}`).emit("newMessage", {
-      chatId,
-      message: populatedMessage,
+    const message = await Message.create({
+      chat: chatId,
+      sender: senderId,
+      content,
+      attachments,
     });
-  });
 
-  res.status(201).json({
-    status: "success",
-    data: {
-      message: populatedMessage,
-    },
+    const populatedMessage = await message.populate(
+      "sender",
+      "name email profilePicture"
+    );
+
+    const io = getIO();
+    io.to(`chat_${chatId}`).emit("newMessage", populatedMessage);
+
+    res.status(201).json({
+      status: "success",
+      data: {
+        message: populatedMessage,
+      },
+    });
   });
 });
 
-export const getMessageHistory = catchAsync(async (req, res, next) => {
+// Get all messages for a chat with pagination
+export const getMessages = catchAsync(async (req, res, next) => {
   const { chatId } = req.params;
-  const { before } = req.query;
-  const limit = parseInt(req.query.limit) || 50;
+  const { before, limit = 20 } = req.query;
 
   const query = { chat: chatId };
   if (before) {
@@ -82,7 +71,7 @@ export const getMessageHistory = catchAsync(async (req, res, next) => {
 
   const messages = await Message.find(query)
     .sort({ createdAt: -1 })
-    .limit(limit)
+    .limit(parseInt(limit))
     .populate("sender", "name email profilePicture")
     .populate("replyTo");
 
@@ -94,6 +83,7 @@ export const getMessageHistory = catchAsync(async (req, res, next) => {
   });
 });
 
+// Delete a message
 export const deleteMessage = catchAsync(async (req, res, next) => {
   const message = await Message.findById(req.params.messageId);
   if (!message) {
