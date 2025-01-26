@@ -40,7 +40,7 @@ const upload = multer({
 });
 
 // Validation middleware for creating a message
-const validateCreateMessage = [
+export const validateCreateMessage = [
   body("chatId").isMongoId().withMessage("Invalid chat ID"),
   body("content").custom((value, { req }) => {
     if (!value && (!req.files || req.files.length === 0)) {
@@ -48,7 +48,10 @@ const validateCreateMessage = [
     }
     return true;
   }),
-  body("replyTo").optional().isMongoId().withMessage("Invalid reply message ID"),
+  body("replyTo")
+    .optional()
+    .isMongoId()
+    .withMessage("Invalid reply message ID"),
 ];
 
 // Controller function to create a message
