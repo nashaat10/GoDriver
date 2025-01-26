@@ -27,9 +27,14 @@ export const createMessage = catchAsync(async (req, res, next) => {
    const uploadedAttachments = [];
   if (attachments && attachments.length > 0) {
     for (const file of attachments) {
-      const result = await cloudinary.v2.uploader.upload(file.path, {
-        resource_type: 'auto', // Automatically detect the file type
-      });
+      const result = await cloudinary.v2.uploader.upload(
+        `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
+        {
+          resource_type: 'auto', // Automatically detect the file type
+        }
+      );
+
+
       uploadedAttachments.push({
         url: result.secure_url,
         public_id: result.public_id,
@@ -42,7 +47,7 @@ export const createMessage = catchAsync(async (req, res, next) => {
     chat: chatId,
     sender: req.user.id,
     content,
-    attachments,
+    attachments : uploadedAttachments,
     replyTo,
   });
 
