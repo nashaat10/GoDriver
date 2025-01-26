@@ -55,17 +55,18 @@ export const createMessage = catchAsync(async (req, res, next) => {
     lastMessage: message._id,
   });
 
-  const populatedMessage = await message.populate(["sender", "replyTo"]);
+  const populatedMessage = await Message.findById(message._id).populate(
+    'sender',
+    'name email profilePicture'
+  );
 
-  // Generate signed URLs for all attachments
-  if (populatedMessage.attachments?.length) {
-    populatedMessage.attachments = await Promise.all(
-      populatedMessage.attachments.map(async (attachment) => ({
-        ...attachment.toObject(),
-        url: await getSignedFileUrl(attachment.key),
-      }))
-    );
-  }
+  // Notify participants about the new message
+  const io = getIO();
+  io.to(chatId).emit('newMessage', {
+    chatId,
+    message: populatedMessage,
+  });
+
   const io = getIO();
   chat.participants.forEach((participantId) => {
     io.to(`user_${participantId}`).emit("newMessage", {
