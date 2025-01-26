@@ -3,14 +3,37 @@ import AppError from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
 import { getIO } from "../config/socket.js";
 import multer from "multer";
-import sharp from "sharp";
-// Create a new messageS
+import cloudinary from "cloudinary";
+import streamifier from "streamifier";
+
+cloudinary.v2.config({
+  cloud_name: "db3rwgkan",
+  api_key: "835868578195358",
+  api_secret: "PZc_rlmffakBBa6tQtonM8blajc",
+});
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
+  limits: { fileSize: 10 * 1024 * 1024 },
 }).array("attachments");
 
+const uploadToCloudinary = (file) => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.v2.uploader.upload_stream(
+      { folder: "attachments" },
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+    streamifier.createReadStream(file.buffer).pipe(uploadStream);
+  });
+};
+
+// Create a new message
 export const createMessage = catchAsync(async (req, res, next) => {
   upload(req, res, async (err) => {
     if (err) {
@@ -19,21 +42,30 @@ export const createMessage = catchAsync(async (req, res, next) => {
 
     const senderId = req.user.id;
     const { chatId, content } = req.body;
-    const attachments = req.files
-      ? req.files.map((file) => ({
-          type: file.mimetype.split("/")[0],
-          key: file.filename,
-          url: file.path,
-          originalname: file.originalname,
-          mimetype: file.mimetype,
-          size: file.size,
-          metadata: {
-            width: file.width,
-            height: file.height,
-            duration: file.duration,
-          },
-        }))
-      : req.body.attachments || [];
+
+    let attachments = [];
+    if (req.files) {
+      attachments = await Promise.all(
+        req.files.map(async (file) => {
+          const result = await uploadToCloudinary(file);
+          return {
+            type: file.mimetype.split("/")[0],
+            key: result.public_id,
+            url: result.secure_url,
+            originalname: file.originalname,
+            mimetype: file.mimetype,
+            size: file.size,
+            metadata: {
+              width: result.width,
+              height: result.height,
+              duration: result.duration,
+            },
+          };
+        })
+      );
+    } else {
+      attachments = req.body.attachments || [];
+    }
 
     const message = await Message.create({
       chat: chatId,
