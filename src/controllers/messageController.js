@@ -5,7 +5,6 @@ import { getIO } from "../config/socket.js";
 import AppError from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
 // import { uploadToS3, getSignedFileUrl } from "../utils/s3Upload.js";
-
 export const createMessage = catchAsync(async (req, res, next) => {
   const { chatId, content, replyTo } = req.body;
   const attachments = req.files;
@@ -21,7 +20,7 @@ export const createMessage = catchAsync(async (req, res, next) => {
   const uploadedAttachments = [];
   if (attachments && attachments.length > 0) {
     for (const file of attachments) {
-      let resourceType = "auto";
+      let resourceType = "auto"; // Default to "auto" for automatic detection
       if (file.mimetype === "application/pdf") {
         resourceType = "raw"; // Set resource type to "raw" for PDF files
       }
@@ -33,13 +32,11 @@ export const createMessage = catchAsync(async (req, res, next) => {
         }
       );
 
+      console.log("Upload result:", result); // Log the entire result object
       console.log("file.mimetype", file.mimetype);
-      let fileUrl = result.secure_url;
-      if (file.mimetype === "application/pdf") {
-        fileUrl += ".pdf";
-      }
+
       uploadedAttachments.push({
-        url: fileUrl,
+        url: result.secure_url, // Use the secure_url directly
         public_id: result.public_id,
         fileType: file.mimetype,
       });
