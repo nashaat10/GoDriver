@@ -13,12 +13,7 @@ const messageSchema = new mongoose.Schema(
       required: true,
     },
     content: {
-      text: String,
-      formattedText: {
         type: String,
-        required: function () {
-          return !this.attachments || this.attachments.length === 0;
-        },
       },
       mentions: [
         {
@@ -29,25 +24,13 @@ const messageSchema = new mongoose.Schema(
           index: Number,
         },
       ],
-    },
-    attachments: [
-      {
-        type: {
-          type: String,
-          enum: ["image", "video", "audio", "document"],
+      attachments: [
+        {
+          url: String,
+          public_id: String,
+          fileType: String, // e.g., image, video, etc.
         },
-        key: String,
-        url: String,
-        originalname: String,
-        mimetype: String,
-        size: Number,
-        metadata: {
-          width: Number,
-          height: Number,
-          duration: Number,
-        },
-      },
-    ],
+      ],
     readBy: [
       {
         user: {

@@ -1,3 +1,5 @@
+
+import cloudinary from "../config/cloudinary.js"
 import Message from "../models/message.js";
 import Chat from "../models/chatModel.js";
 import { getIO } from "../config/socket.js";
@@ -7,6 +9,9 @@ import catchAsync from "../utils/catchAsync.js";
 
 export const createMessage = catchAsync(async (req, res, next) => {
   const { chatId, content, replyTo } = req.body;
+  const attachments =req.files;
+
+
 
   const chat = await Chat.findById(chatId);
   if (!chat) {
@@ -18,15 +23,17 @@ export const createMessage = catchAsync(async (req, res, next) => {
   }
 
 
-  // AWS s3
-  const attachments = [];
-  if (req.files?.length) {
-    for (const file of req.files) {
-      const fileData = await uploadToS3(file);
-      const signedUrl = await getSignedFileUrl(fileData.key);
-      attachments.push({
-        ...fileData,
-        url: signedUrl,
+  
+   const uploadedAttachments = [];
+  if (attachments && attachments.length > 0) {
+    for (const file of attachments) {
+      const result = await cloudinary.v2.uploader.upload(file.path, {
+        resource_type: 'auto', // Automatically detect the file type
+      });
+      uploadedAttachments.push({
+        url: result.secure_url,
+        public_id: result.public_id,
+        fileType: file.mimetype.split('/')[0], // e.g., image, video, etc.
       });
     }
   }
