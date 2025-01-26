@@ -1,5 +1,4 @@
-
-import cloudinary from "../config/cloudinary.js"
+import cloudinary from "../config/cloudinary.js";
 import Message from "../models/message.js";
 import Chat from "../models/chatModel.js";
 import { getIO } from "../config/socket.js";
@@ -9,10 +8,7 @@ import catchAsync from "../utils/catchAsync.js";
 
 export const createMessage = catchAsync(async (req, res, next) => {
   const { chatId, content, replyTo } = req.body;
-  const attachments =req.files;
-
-
-
+  const attachments = req.files;
   const chat = await Chat.findById(chatId);
   if (!chat) {
     return next(new AppError("Chat not found", 404));
@@ -22,23 +18,30 @@ export const createMessage = catchAsync(async (req, res, next) => {
     return next(new AppError("Not a chat participant", 403));
   }
 
-
-  
-   const uploadedAttachments = [];
+  const uploadedAttachments = [];
   if (attachments && attachments.length > 0) {
     for (const file of attachments) {
+      let resourceType = "auto";
+      if (file.mimetype === "application/pdf") {
+        resourceType = "raw"; // Set resource type to "raw" for PDF files
+      }
+
       const result = await cloudinary.v2.uploader.upload(
-        `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
+        `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
         {
-          resource_type: 'auto', // Automatically detect the file type
+          resource_type: resourceType,
         }
       );
 
-
+      console.log("file.mimetype", file.mimetype);
+      let fileUrl = result.secure_url;
+      if (file.mimetype === "application/pdf") {
+        fileUrl += ".pdf";
+      }
       uploadedAttachments.push({
-        url: result.secure_url,
+        url: fileUrl,
         public_id: result.public_id,
-        fileType: file.mimetype.split('/')[0], // e.g., image, video, etc.
+        fileType: file.mimetype,
       });
     }
   }
@@ -47,8 +50,7 @@ export const createMessage = catchAsync(async (req, res, next) => {
     chat: chatId,
     sender: req.user.id,
     content,
-    attachments : uploadedAttachments,
-    replyTo,
+    attachments: uploadedAttachments,
   });
 
   await Chat.findByIdAndUpdate(chatId, {
@@ -56,18 +58,17 @@ export const createMessage = catchAsync(async (req, res, next) => {
   });
 
   const populatedMessage = await Message.findById(message._id).populate(
-    'sender',
-    'name email profilePicture'
+    "sender",
+    "name email profilePicture"
   );
 
   // Notify participants about the new message
   const io = getIO();
-  io.to(chatId).emit('newMessage', {
+  io.to(chatId).emit("newMessage", {
     chatId,
     message: populatedMessage,
   });
 
-  const io = getIO();
   chat.participants.forEach((participantId) => {
     io.to(`user_${participantId}`).emit("newMessage", {
       chatId,

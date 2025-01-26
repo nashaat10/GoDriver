@@ -13,24 +13,24 @@ const messageSchema = new mongoose.Schema(
       required: true,
     },
     content: {
-        type: String,
+      type: String,
+    },
+    mentions: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        index: Number,
       },
-      mentions: [
-        {
-          user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-          },
-          index: Number,
-        },
-      ],
-      attachments: [
-        {
-          url: String,
-          public_id: String,
-          fileType: String, // e.g., image, video, etc.
-        },
-      ],
+    ],
+    attachments: [
+      {
+        url: String,
+        public_id: String,
+        fileType: String, // e.g., image, video, etc.
+      },
+    ],
     readBy: [
       {
         user: {
