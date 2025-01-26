@@ -4,10 +4,63 @@ import Chat from "../models/chatModel.js";
 import { getIO } from "../config/socket.js";
 import AppError from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
-// import { uploadToS3, getSignedFileUrl } from "../utils/s3Upload.js";
+import { body, validationResult } from "express-validator";
+import multer from "multer";
+
+// Multer configuration for file uploads
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = [
+    "image",
+    "video",
+    "audio",
+    "application",
+    "application/pdf",
+  ];
+  const fileType = file.mimetype.split("/")[0];
+
+  if (allowedTypes.includes(fileType)) {
+    cb(null, true);
+  } else {
+    cb(
+      new AppError(
+        "Invalid file type. Only images, videos, audio, and documents (PDF) are allowed",
+        400
+      ),
+      false
+    );
+  }
+};
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+});
+
+// Validation middleware for creating a message
+const validateCreateMessage = [
+  body("chatId").isMongoId().withMessage("Invalid chat ID"),
+  body("content").custom((value, { req }) => {
+    if (!value && (!req.files || req.files.length === 0)) {
+      throw new Error("Message must contain either text or attachments");
+    }
+    return true;
+  }),
+  body("replyTo").optional().isMongoId().withMessage("Invalid reply message ID"),
+];
+
+// Controller function to create a message
 export const createMessage = catchAsync(async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const { chatId, content, replyTo } = req.body;
   const attachments = req.files;
+
   const chat = await Chat.findById(chatId);
   if (!chat) {
     return next(new AppError("Chat not found", 404));
@@ -32,11 +85,8 @@ export const createMessage = catchAsync(async (req, res, next) => {
         }
       );
 
-      console.log("Upload result:", result); // Log the entire result object
-      console.log("file.mimetype", file.mimetype);
-
       uploadedAttachments.push({
-        url: result.secure_url, // Use the secure_url directly
+        url: result.secure_url,
         public_id: result.public_id,
         fileType: file.mimetype,
       });
@@ -48,6 +98,7 @@ export const createMessage = catchAsync(async (req, res, next) => {
     sender: req.user.id,
     content,
     attachments: uploadedAttachments,
+    replyTo,
   });
 
   await Chat.findByIdAndUpdate(chatId, {
@@ -81,6 +132,7 @@ export const createMessage = catchAsync(async (req, res, next) => {
   });
 });
 
+// Controller function to get message history
 export const getMessageHistory = catchAsync(async (req, res, next) => {
   const { chatId } = req.params;
   const { before } = req.query;
@@ -105,6 +157,7 @@ export const getMessageHistory = catchAsync(async (req, res, next) => {
   });
 });
 
+// Controller function to delete a message
 export const deleteMessage = catchAsync(async (req, res, next) => {
   const message = await Message.findById(req.params.messageId);
   if (!message) {
@@ -128,3 +181,6 @@ export const deleteMessage = catchAsync(async (req, res, next) => {
     data: null,
   });
 });
+
+// Export the upload middleware for use in routes
+export const uploadMiddleware = upload.array("attachments", 10);
