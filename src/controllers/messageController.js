@@ -54,7 +54,6 @@ export const validateCreateMessage = [
     .withMessage("Invalid reply message ID"),
 ];
 
-// Controller function to create a message
 export const createMessage = catchAsync(async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -76,9 +75,9 @@ export const createMessage = catchAsync(async (req, res, next) => {
   const uploadedAttachments = [];
   if (attachments && attachments.length > 0) {
     for (const file of attachments) {
-      let resourceType = "auto"; // Default to "auto" for automatic detection
+      let resourceType = "auto";
       if (file.mimetype === "application/pdf") {
-        resourceType = "raw"; // Set resource type to "raw" for PDF files
+        resourceType = "raw";
       }
 
       const result = await cloudinary.v2.uploader.upload(
@@ -113,7 +112,6 @@ export const createMessage = catchAsync(async (req, res, next) => {
     "name email profilePicture"
   );
 
-  // Notify participants about the new message
   const io = getIO();
   io.to(chatId).emit("newMessage", {
     chatId,
@@ -135,7 +133,6 @@ export const createMessage = catchAsync(async (req, res, next) => {
   });
 });
 
-// Controller function to get message history
 export const getMessageHistory = catchAsync(async (req, res, next) => {
   const { chatId } = req.params;
   const { before } = req.query;
@@ -185,5 +182,4 @@ export const deleteMessage = catchAsync(async (req, res, next) => {
   });
 });
 
-// Export the upload middleware for use in routes
 export const uploadMiddleware = upload.array("attachments", 10);
