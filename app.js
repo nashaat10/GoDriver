@@ -19,12 +19,10 @@ import "./src/services/consumeVehicleData.js";
 
 const app = express();
 
-// Middleware
 app.use(morgan("dev"));
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
-// Enable CORS
 app.use(
   cors({
     origin: "*",
@@ -32,9 +30,7 @@ app.use(
     credentials: true,
   })
 );
-// app.options("*", cors());
 
-// Rate limiting
 const limiter = rateLimit({
   max: 10000,
   windowMs: 60 * 60 * 1000,

@@ -13,12 +13,8 @@ import { fcmMessaging } from "./src/config/fcm.js";
   try {
     dotenv.config({ path: "./config.env" });
 
-    // Create HTTP server
     const server = http.createServer(app);
 
-    // Initialize Socket.IO
-
-    // Setup alert handlers
     initSocket(server);
     setupSocketHandlers();
     setupChatHandlers();
