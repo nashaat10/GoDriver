@@ -1,16 +1,19 @@
 import express from "express";
-import { body } from "express-validator";
-import multer from "multer";
 import * as authController from "../controllers/authController.js";
+<<<<<<< HEAD
 import {
   createMessage,
   getMessages,
   deleteMessage,
 } from "../controllers/messageController.js";
+=======
+import * as messageController from "../controllers/messageController.js";
+>>>>>>> deaa1bd09d1bfed6e15df34570010c3b42739b1f
 
 const router = express.Router();
 router.use(authController.protect);
 
+<<<<<<< HEAD
 // Configure multer for file uploads
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -35,7 +38,22 @@ const validateMessage = [
 router.post("/", upload.array("attachments"), validateMessage, createMessage);
 
 router.get("/:chatId", getMessages);
+=======
+router.post(
+  "/",
+  messageController.uploadMiddleware,
+  messageController.validateCreateMessage,
+  messageController.createMessage
+);
 
-router.delete("/:messageId", deleteMessage);
+router.get("/:chatId", messageController.getMessageHistory);
+router.delete("/:messageId", messageController.deleteMessage);
+>>>>>>> deaa1bd09d1bfed6e15df34570010c3b42739b1f
 
+
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> deaa1bd09d1bfed6e15df34570010c3b42739b1f
 export default router;
