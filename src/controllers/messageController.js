@@ -144,8 +144,6 @@ export const getMessageHistory = catchAsync(async (req, res, next) => {
   }
 
   const messages = await Message.find(query)
-    .sort({ createdAt: -1 })
-    .limit(limit)
     .populate("sender", "name email profilePicture")
     .populate("replyTo");
 
