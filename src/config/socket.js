@@ -4,8 +4,6 @@ import User from "../models/userModel.js";
 
 let io;
 
-
-
 export const initSocket = (server) => {
   io = new Server(server, {
     cors: {
@@ -17,11 +15,9 @@ export const initSocket = (server) => {
 
   io.use(async (socket, next) => {
     try {
-      const token = socket.handshake.auth.token;
-      console.log(
-        "Socket authentication attempt with token:",
-        token ? "Present" : "Missing"
-      );
+      const token =
+        socket.handshake.auth.token || socket.handshake.headers.token;
+      console.log(socket.handshake);
 
       if (!token) {
         return next(new Error("Authentication error: No token provided"));
@@ -39,7 +35,7 @@ export const initSocket = (server) => {
 
       socket.user = user;
       console.log(`Socket authenticated for user: ${user.email}`);
-      next();
+      return next();
     } catch (error) {
       console.error("Socket authentication error:", error.message);
       next(new Error("Authentication error"));
