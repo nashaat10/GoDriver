@@ -13,39 +13,22 @@ const messageSchema = new mongoose.Schema(
       required: true,
     },
     content: {
-      text: String,
-      formattedText: {
-        type: String,
-        required: function () {
-          return !this.attachments || this.attachments.length === 0;
-        },
-      },
-      mentions: [
-        {
-          user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-          },
-          index: Number,
-        },
-      ],
+      type: String,
     },
+    mentions: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        index: Number,
+      },
+    ],
     attachments: [
       {
-        type: {
-          type: String,
-          enum: ["image", "video", "audio", "document"],
-        },
-        key: String,
         url: String,
-        originalname: String,
-        mimetype: String,
-        size: Number,
-        metadata: {
-          width: Number,
-          height: Number,
-          duration: Number,
-        },
+        public_id: String,
+        fileType: String, // e.g., image, video, etc.
       },
     ],
     readBy: [

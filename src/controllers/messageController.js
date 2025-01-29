@@ -1,12 +1,67 @@
+import cloudinary from "../config/cloudinary.js";
 import Message from "../models/message.js";
 import Chat from "../models/chatModel.js";
 import { getIO } from "../config/socket.js";
 import AppError from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
-// import { uploadToS3, getSignedFileUrl } from "../utils/s3Upload.js";
+import { body, validationResult } from "express-validator";
+import multer from "multer";
+
+// Multer configuration for file uploads
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = [
+    "image",
+    "video",
+    "audio",
+    "application",
+    "application/pdf",
+  ];
+  const fileType = file.mimetype.split("/")[0];
+
+  if (allowedTypes.includes(fileType)) {
+    cb(null, true);
+  } else {
+    cb(
+      new AppError(
+        "Invalid file type. Only images, videos, audio, and documents (PDF) are allowed",
+        400
+      ),
+      false
+    );
+  }
+};
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+});
+
+// Validation middleware for creating a message
+export const validateCreateMessage = [
+  body("chatId").isMongoId().withMessage("Invalid chat ID"),
+  body("content").custom((value, { req }) => {
+    if (!value && (!req.files || req.files.length === 0)) {
+      throw new Error("Message must contain either text or attachments");
+    }
+    return true;
+  }),
+  body("replyTo")
+    .optional()
+    .isMongoId()
+    .withMessage("Invalid reply message ID"),
+];
 
 export const createMessage = catchAsync(async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const { chatId, content, replyTo } = req.body;
+  const attachments = req.files;
 
   const chat = await Chat.findById(chatId);
   if (!chat) {
@@ -17,16 +72,25 @@ export const createMessage = catchAsync(async (req, res, next) => {
     return next(new AppError("Not a chat participant", 403));
   }
 
+  const uploadedAttachments = [];
+  if (attachments && attachments.length > 0) {
+    for (const file of attachments) {
+      let resourceType = "auto";
+      if (file.mimetype === "application/pdf") {
+        resourceType = "raw";
+      }
 
-  // AWS s3
-  const attachments = [];
-  if (req.files?.length) {
-    for (const file of req.files) {
-      const fileData = await uploadToS3(file);
-      const signedUrl = await getSignedFileUrl(fileData.key);
-      attachments.push({
-        ...fileData,
-        url: signedUrl,
+      const result = await cloudinary.v2.uploader.upload(
+        `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
+        {
+          resource_type: resourceType,
+        }
+      );
+
+      uploadedAttachments.push({
+        url: result.secure_url,
+        public_id: result.public_id,
+        fileType: file.mimetype,
       });
     }
   }
@@ -35,7 +99,7 @@ export const createMessage = catchAsync(async (req, res, next) => {
     chat: chatId,
     sender: req.user.id,
     content,
-    attachments,
+    attachments: uploadedAttachments,
     replyTo,
   });
 
@@ -43,18 +107,17 @@ export const createMessage = catchAsync(async (req, res, next) => {
     lastMessage: message._id,
   });
 
-  const populatedMessage = await message.populate(["sender", "replyTo"]);
+  const populatedMessage = await Message.findById(message._id).populate(
+    "sender",
+    "name email profilePicture"
+  );
 
-  // Generate signed URLs for all attachments
-  if (populatedMessage.attachments?.length) {
-    populatedMessage.attachments = await Promise.all(
-      populatedMessage.attachments.map(async (attachment) => ({
-        ...attachment.toObject(),
-        url: await getSignedFileUrl(attachment.key),
-      }))
-    );
-  }
   const io = getIO();
+  io.to(chatId).emit("newMessage", {
+    chatId,
+    message: populatedMessage,
+  });
+
   chat.participants.forEach((participantId) => {
     io.to(`user_${participantId}`).emit("newMessage", {
       chatId,
@@ -94,6 +157,7 @@ export const getMessageHistory = catchAsync(async (req, res, next) => {
   });
 });
 
+// Controller function to delete a message
 export const deleteMessage = catchAsync(async (req, res, next) => {
   const message = await Message.findById(req.params.messageId);
   if (!message) {
@@ -117,3 +181,5 @@ export const deleteMessage = catchAsync(async (req, res, next) => {
     data: null,
   });
 });
+
+export const uploadMiddleware = upload.array("attachments", 10);

@@ -16,7 +16,7 @@ import trackRoutes from "./src/routes/trackingRoutes.js";
 import chatRoutes from "./src/routes/chatRoutes.js";
 import messageRoutes from "./src/routes/messageRoutes.js";
 import "./src/services/consumeVehicleData.js";
-
+import notificationRoutes from "./src/routes/notificationRoutes.js";
 const app = express();
 
 // Middleware
@@ -64,6 +64,9 @@ app.use("/api/v1/client", clientRoutes);
 app.use("/api/v1/alerts", alertRoutes);
 app.use("/api/v1/tracking", trackRoutes);
 app.use("/api/v1/messages", messageRoutes);
+app.use("/api/v1/notifications", notificationRoutes);
+
+
 // Handle undefined routes
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
