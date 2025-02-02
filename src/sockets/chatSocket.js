@@ -195,7 +195,7 @@ export const setupChatHandlers = () => {
   setInterval(() => {
     const onlineUsers = Array.from(connectedUsers.keys());
     io.emit("online-users", onlineUsers);
-  }, 5000);
+  }, 1000);
 };
 
 //add event in-chat to handle chat messages
