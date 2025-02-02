@@ -72,6 +72,36 @@ export const setupChatHandlers = () => {
       }
     });
 
+    socket.on("in-chat", async (data) => {
+      try {
+        const { chatId, content, attachments, replyTo } = data;
+        const message = await Message.create({
+          chat: chatId,
+          sender: userId,
+          content,
+          attachments,
+          replyTo,
+        });
+
+        await Chat.findByIdAndUpdate(chatId, {
+          lastMessage: message._id,
+        });
+
+        io.to(chatId).emit("new-message", {
+          message: await message.populate(["sender", "replyTo"]),
+        });
+
+        // Send delivery status
+        socket.to(chatId).emit("message-delivered", {
+          messageId: message._id,
+          chatId,
+        });
+      } catch (error) {
+        logger.error("Message error:", error);
+        socket.emit("message-error", { error: "Failed to send message" });
+      }
+    });
+
     // Handle typing indicators with debouncing
     socket.on("typing-start", async ({ chatId }) => {
       const key = `${userId}-${chatId}`;
@@ -114,7 +144,7 @@ export const setupChatHandlers = () => {
           status: "read",
         });
       } catch (error) {
-        logger.error("Read receipt error:", error);
+        // logger.error("Read receipt error:", error);
       }
     });
 
@@ -166,3 +196,5 @@ export const setupChatHandlers = () => {
     io.emit("online-users", onlineUsers);
   }, 30000);
 };
+
+//add event in-chat to handle chat messages

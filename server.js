@@ -27,7 +27,6 @@ import { fcmMessaging } from "./src/config/fcm.js";
     const DB = process.env.DATABASE_URL;
 
     await init();
-    console.log("fcmMessaging", fcmMessaging);
     const dbConnection = await mongoose.connect(DB);
     console.log("Connected to Mongo DB: ", dbConnection.connections[0].name);
 
