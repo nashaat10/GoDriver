@@ -6,17 +6,8 @@ let rabbitConnection = null; // Store the RabbitMQ connection
 export const setupSocketHandlers = () => {
   const io = getIO();
 
-  io.on("connection", async (socket) => {
+  io.on("connection", (socket) => {
     console.log("Client connected");
-
-    const userId = socket.user._id;
-    const userStatus = socket.user.status;
-    connectedUsers.set(userId.toString(), socket.id);
-
-    // Update user status and join rooms
-    await User.findByIdAndUpdate(userId, {
-      status: userStatus,
-    });
 
     // Establish RabbitMQ connection if not already connected
     if (!rabbitConnection) {
