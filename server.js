@@ -7,7 +7,6 @@ import { setupSocketHandlers } from "./src/sockets/socket.js";
 import { setupChatHandlers } from "./src/sockets/chatSocket.js";
 import init from "./src/config/fcm.js";
 import { initSocket } from "./src/config/socket.js";
-import { fcmMessaging } from "./src/config/fcm.js";
 
 (async () => {
   try {
