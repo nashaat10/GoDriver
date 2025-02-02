@@ -15,8 +15,6 @@ import { initSocket } from "./src/config/socket.js";
     // Create HTTP server
     const server = http.createServer(app);
 
-    // Initialize Socket.IO
-
     // Setup alert handlers
     initSocket(server);
     setupSocketHandlers();
@@ -26,8 +24,7 @@ import { initSocket } from "./src/config/socket.js";
     const DB = process.env.DATABASE_URL;
 
     await init();
-    const dbConnection = await mongoose.connect(DB);
-    console.log("Connected to Mongo DB: ", dbConnection.connections[0].name);
+    await mongoose.connect(DB);
 
     const port = process.env.PORT || 4000;
     server.listen(port, () => {
