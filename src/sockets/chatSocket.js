@@ -60,7 +60,7 @@ export const setupChatHandlers = () => {
         io.to(chatId).emit("new-message", {
           message: await message.populate(["sender", "replyTo"]),
         });
-        io.to(chatId)
+        io.to(chatId);
 
         // Send delivery status
         socket.to(chatId).emit("message-delivered", {
