@@ -1,7 +1,6 @@
 import express from "express";
 import {
   getAllAlerts,
-  getAlertsByType,
   getAlertsByVehicle,
   getAlertStats,
 } from "../controllers/alertController.js";
