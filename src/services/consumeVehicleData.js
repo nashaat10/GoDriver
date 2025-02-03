@@ -100,8 +100,8 @@ const consumeVehicleData = async () => {
               const message = {
                 token: clientToken.token,
                 notification: {
-                  title: savedAlert.alertType,
-                  body: savedAlert.message,
+                  title: alertData.alertType,
+                  body: alertData.message,
                 },
               };
               try {
