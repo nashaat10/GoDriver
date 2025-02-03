@@ -69,30 +69,30 @@ export const setupChatHandlers = () => {
 
     socket.on("delivered", async ({ userId }) => {
       try {
-        // Find all chats where the user is a participant
-        const chats = await Chat.find({ participants: userId });
+        // Find all chat IDs where the user is a participant
+        const chatIds = await Chat.find({ participants: userId }).distinct(
+          "_id"
+        );
 
-        // Use a for...of loop to handle asynchronous operations properly
-        for (const chat of chats) {
-          // Update messages sent to the user (where the user is a recipient)
-          await Message.updateMany(
-            {
-              chat: chat._id,
-              recipients: userId, // Ensure the user is a recipient
-              deliveryStatus: { $eq: "sent" }, // Only update if not already delivered
-            },
-            { $set: { deliveryStatus: "delivered" } }
-          );
+        if (chatIds.length === 0) return; // No chats found, exit early
 
-          // Emit a "delivered" event to the chat room
-          io.to(chat._id.toString()).emit("delivered", {
-            chatId: chat._id,
-            userId,
-          });
-        }
+        // Update all messages with deliveryStatus "sent" to "delivered"
+        const updated = await Message.updateMany(
+          {
+            chat: { $in: chatIds }, // Messages in these chats
+            recipients: { $in: [userId] }, // User is a recipient
+            deliveryStatus: "sent", // Only update messages that are still "sent"
+          },
+          { $set: { deliveryStatus: "delivered" } }
+        );
+
+        // Emit "delivered" event for all affected chats
+        chatIds.forEach((chatId) => {
+          io.to(chatId.toString()).emit("delivered", { chatId, userId });
+        });
 
         console.log(
-          `Messages marked as delivered for user ${userId} in all chats.`
+          `Marked ${updated.modifiedCount} messages as delivered for user ${userId}`
         );
       } catch (error) {
         console.error("Delivered error:", error);
