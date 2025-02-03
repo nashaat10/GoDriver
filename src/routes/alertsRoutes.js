@@ -19,6 +19,4 @@ router.get("/stats", getAlertStats);
 
 router.get("/:id", getAlertsByVehicle);
 
-router.get("/type/:alertType", getAlertsByType);
-
 export default router;
