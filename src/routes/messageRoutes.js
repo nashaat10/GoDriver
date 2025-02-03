@@ -15,7 +15,4 @@ router.post(
 router.get("/:chatId", messageController.getMessageHistory);
 router.delete("/:messageId", messageController.deleteMessage);
 
-
-
-
 export default router;

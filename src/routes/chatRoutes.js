@@ -20,10 +20,9 @@ router.post(
   chatController.createChat
 );
 
-// Get user's chats
 router.get("/", chatController.getUserChats);
 
 // Get chat history
-router.get("/:chatId", chatController.getChatHistory);
+router.get("/read/:chatId", chatController.getChatHistory);
 
 export default router;
