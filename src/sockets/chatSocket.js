@@ -67,14 +67,20 @@ export const setupChatHandlers = () => {
       }
     });
 
-    // event to make all messages are delivered
-    socket.on("all-messages-delivered", async ({ chatId }) => {
+    // event to make all messages i all chats  are delivered when the user logged in
+    socket.on("delivered", async ({ userId }) => {
       try {
-        await Message.updateMany(
-          { chat: chatId },
-          { $addToSet: { deliveredTo: userId } }
-        );
-        io.to(chatId).emit("all-messages-delivered", { chatId, userId });
+        const chats = await Chat.find({ participants: userId });
+        chats.forEach(async (chat) => {
+          await Message.updateMany(
+            { chat: chat._id },
+            { $addToSet: { deliveredTo: userId } }
+          );
+          io.to(chat._id).emit("all-messages-delivered", {
+            chatId: chat._id,
+            userId,
+          });
+        });
       } catch (error) {
         console.log("Delivered error:", error);
       }
