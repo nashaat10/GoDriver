@@ -10,7 +10,6 @@ export const createChat = catchAsync(async (req, res, next) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-
   const { participants, type, name } = req.body;
 
   // Check if user has permission to create chats
@@ -19,9 +18,7 @@ export const createChat = catchAsync(async (req, res, next) => {
     req.user.role !== "manager" &&
     req.user.role !== "driver"
   ) {
-    return next(
-      new AppError("You do not have permission to create chats", 403)
-    );
+    //   return next(new AppError('You do not have permission to create chats', 403));
   }
 
   // For drivers, only allow private chats with managers/admins
@@ -31,12 +28,6 @@ export const createChat = catchAsync(async (req, res, next) => {
       !otherParticipant ||
       (otherParticipant.role !== "manager" && otherParticipant.role !== "admin")
     ) {
-      return next(
-        new AppError(
-          "Drivers can only create private chats with managers or admins",
-          403
-        )
-      );
     }
     type = "private"; // Force private chat for drivers
   }
@@ -48,28 +39,9 @@ export const createChat = catchAsync(async (req, res, next) => {
       (p) => p.role !== "driver" || p.managerId?.toString() !== req.user.id
     );
     if (invalidParticipants) {
-      return next(
-        new AppError(
-          "Managers can only create group chats with their assigned drivers",
-          403
-        )
-      );
     }
   }
 
-  // Check if a chat already exists with the same participants
-  const existingChat = await Chat.findOne({
-    participants: { $all: [...participants, req.user.id] },
-    type: "private", // Only check for private chats
-  });
-
-  if (existingChat) {
-    return next(
-      new AppError("A chat already exists with these participants", 400)
-    );
-  }
-
-  // Create the new chat
   const chat = await Chat.create({
     participants: [...participants, req.user.id],
     type,
@@ -77,7 +49,6 @@ export const createChat = catchAsync(async (req, res, next) => {
     createdBy: req.user.id,
   });
 
-  // Populate the chat with participant details
   const populatedChat = await Chat.findById(chat._id).populate(
     "participants",
     "name email profilePicture role"
@@ -139,12 +110,7 @@ export const sendMessage = catchAsync(async (req, res, next) => {
 });
 
 export const getChatHistory = catchAsync(async (req, res, next) => {
-  const { chatId } = req.params;
-
-  const chat = await Chat.findById(chatId)
-    .populate("participants", "name email profilePicture")
-    .populate("messages.sender", "name email profilePicture");
-
+  const chat = await Chat.findById(req.params.chatId);
   if (!chat) {
     return next(new AppError("Chat not found", 404));
   }
@@ -152,6 +118,13 @@ export const getChatHistory = catchAsync(async (req, res, next) => {
   if (!chat.participants.includes(req.user.id)) {
     return next(new AppError("You are not a participant in this chat", 403));
   }
+
+  chat.messages.forEach((message) => {
+    if (message.sender.toString() !== req.user.id) {
+      message.readBy.push(req.user.id);
+    }
+  });
+  await chat.save();
 
   res.status(200).json({
     status: "success",
@@ -191,7 +164,7 @@ export const getUserChats = catchAsync(async (req, res, next) => {
       ],
     };
   }
-
+  
   const chats = await Chat.find(query)
     .populate("participants", "name email profilePicture role")
     .populate({
@@ -206,46 +179,28 @@ export const getUserChats = catchAsync(async (req, res, next) => {
   });
 });
 
-export const markChatAsRead = catchAsync(async (req, res, next) => {
-  const { chatId } = req.params;
-  const userId = req.user.id;
+// make all messages for one chat as read
+// export const markChatAsRead = catchAsync(async (req, res, next) => {
+//   const chat = await Chat.findById(req.params.chatId);
+//   if (!chat) {
+//     return next(new AppError("Chat not found", 404));
+//   }
 
-  // Find the chat by ID
-  const chat = await Chat.findById(chatId);
-  if (!chat) {
-    return next(new AppError("Chat not found", 404));
-  }
+//   if (!chat.participants.includes(req.user.id)) {
+//     return next(new AppError("You are not a participant in this chat", 403));
+//   }
 
-  // Check if the user is a participant in the chat
-  if (!chat.participants.includes(userId)) {
-    return next(new AppError("You are not a participant in this chat", 403));
-  }
+//   chat.messages.forEach((message) => {
+//     if (message.sender.toString() !== req.user.id) {
+//       message.readBy.push(req.user.id);
+//     }
+//   });
+//   await chat.save();
 
-  // Ensure messages is defined and is an array
-  if (!chat.messages || !Array.isArray(chat.messages)) {
-    chat.messages = [];
-  }
-
-  // Mark messages as read by the user
-  chat.messages.forEach((message) => {
-    if (message.sender.toString() !== userId) {
-      // Add the user to the readBy array if not already present
-      if (!message.readBy.some((read) => read.user.toString() === userId)) {
-        message.readBy.push({ user: userId, readAt: new Date() });
-      }
-    } else {
-      // If the user is the sender, mark the message as read only by them
-      message.readBy = [{ user: userId, readAt: new Date() }];
-    }
-  });
-
-  // Save the updated chat
-  await chat.save();
-
-  res.status(200).json({
-    status: "success",
-    data: {
-      chat,
-    },
-  });
-});
+//   res.status(200).json({
+//     status: "success",
+//     data: {
+//       chat,
+//     },
+//   });
+// });
