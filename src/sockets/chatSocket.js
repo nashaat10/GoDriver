@@ -197,5 +197,3 @@ export const setupChatHandlers = () => {
     io.emit("online-users", onlineUsers);
   }, 1000);
 };
-
-//add event in-chat to handle chat messages

@@ -1,7 +1,7 @@
 import amqp from "amqplib/callback_api.js";
 import { getIO } from "../config/socket.js";
 import User from "../models/userModel.js";
-let rabbitConnection = null; // Store the RabbitMQ connection
+let rabbitConnection = null;
 
 export const setupSocketHandlers = () => {
   const io = getIO();
