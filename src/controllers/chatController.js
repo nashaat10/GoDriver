@@ -165,7 +165,7 @@ export const getUserChats = catchAsync(async (req, res, next) => {
     };
   }
 
-  const chats = await Chat.find(query)
+  export const chats = await Chat.find(query)
     .populate("participants", "name email profilePicture role")
     .populate({
       path: "lastMessage",
