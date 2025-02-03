@@ -70,22 +70,35 @@ export const setupChatHandlers = () => {
     // event to make all messages i all chats  are delivered when the user logged in
     socket.on("delivered", async ({ userId }) => {
       try {
+        // Find all chats where the user is a participant
         const chats = await Chat.find({ participants: userId });
-        chats.forEach(async (chat) => {
+
+        // Use a for...of loop to handle asynchronous operations properly
+        for (const chat of chats) {
+          // Update all messages in the chat to mark them as delivered to the user
           await Message.updateMany(
             { chat: chat._id },
             { $addToSet: { deliveredTo: userId } }
           );
-          io.to(chat._id).emit("delivered", {
+
+          // Emit a "delivered" event to the chat room
+          io.to(chat._id.toString()).emit("delivered", {
             chatId: chat._id,
             userId,
           });
-        });
+        }
+
+        console.log(`Messages delivered to user ${userId} in all chats.`);
       } catch (error) {
-        console.log("Delivered error:", error);
+        console.error("Delivered error:", error);
+
+        // Optionally, emit an error event to the client
+        socket.emit("delivered_error", {
+          message: "Failed to mark messages as delivered",
+          error: error.message,
+        });
       }
     });
-
     // event to make all messages are read
     socket.on("in-chat", async ({ chatId }) => {
       try {
