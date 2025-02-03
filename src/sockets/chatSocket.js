@@ -76,7 +76,7 @@ export const setupChatHandlers = () => {
             { chat: chat._id },
             { $addToSet: { deliveredTo: userId } }
           );
-          io.to(chat._id).emit("all-messages-delivered", {
+          io.to(chat._id).emit("delivered", {
             chatId: chat._id,
             userId,
           });
