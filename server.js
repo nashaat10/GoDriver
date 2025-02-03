@@ -35,3 +35,6 @@ import { initSocket } from "./src/config/socket.js";
     process.exit(1);
   }
 })();
+
+
+// not all alerts saved in the databse which make logic error 
