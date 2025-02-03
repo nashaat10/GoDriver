@@ -42,25 +42,6 @@ export const getAlertsByVehicle = catchAsync(async (req, res, next) => {
   });
 });
 
-export const getAlertsByType = catchAsync(async (req, res, next) => {
-  const alerts = await Alert.find({ alertType: req.params.alertType })
-    .populate("driverId", "name")
-    .populate("vehicleId", "brand model")
-    .sort("-alertTime");
-
-  if (!alerts.length) {
-    return next(new AppError("No alerts found for this type", 404));
-  }
-
-  res.status(200).json({
-    status: "success",
-    results: alerts.length,
-    data: {
-      alerts,
-    },
-  });
-});
-
 export const getAlertStats = catchAsync(async (req, res, next) => {
   const stats = await Alert.aggregate([
     {

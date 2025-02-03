@@ -61,47 +61,67 @@ export const setupChatHandlers = () => {
           message: await message.populate(["sender", "replyTo"]),
         });
         io.to(chatId);
-
-        // Send delivery status
-        socket.to(chatId).emit("message-delivered", {
-          messageId: message._id,
-          chatId,
-        });
       } catch (error) {
         logger.error("Message error:", error);
         socket.emit("message-error", { error: "Failed to send message" });
       }
     });
 
-    socket.on("in-chat", async (data) => {
+    // event to make all messages are delivered
+    socket.on("all-messages-delivered", async ({ chatId }) => {
       try {
-        const { chatId, content, attachments, replyTo } = data;
-        const message = await Message.create({
-          chat: chatId,
-          sender: userId,
-          content,
-          attachments,
-          replyTo,
-        });
-
-        await Chat.findByIdAndUpdate(chatId, {
-          lastMessage: message._id,
-        });
-
-        io.to(chatId).emit("new-message", {
-          message: await message.populate(["sender", "replyTo"]),
-        });
-
-        // Send delivery status
-        socket.to(chatId).emit("message-delivered", {
-          messageId: message._id,
-          chatId,
-        });
+        await Message.updateMany(
+          { chat: chatId },
+          { $addToSet: { deliveredTo: userId } }
+        );
+        io.to(chatId).emit("all-messages-delivered", { chatId, userId });
       } catch (error) {
-        logger.error("Message error:", error);
-        socket.emit("message-error", { error: "Failed to send message" });
+        console.log("Delivered error:", error);
       }
     });
+
+    // event to make all messages are read
+    socket.on("in-chat", async ({ chatId }) => {
+      try {
+        await Message.updateMany(
+          { chat: chatId },
+          { $addToSet: { readBy: { user: userId, readAt: new Date() } } }
+        );
+        io.to(chatId).emit("all-messages-read", { chatId, userId });
+      } catch (error) {
+        console.log("Delivered error:", error);
+      }
+    });
+
+    // socket.on("in-chat", async (data) => {
+    //   try {
+    //     const { chatId, content, attachments, replyTo } = data;
+    //     const message = await Message.create({
+    //       chat: chatId,
+    //       sender: userId,
+    //       content,
+    //       attachments,
+    //       replyTo,
+    //     });
+
+    //     await Chat.findByIdAndUpdate(chatId, {
+    //       lastMessage: message._id,
+    //     });
+
+    //     io.to(chatId).emit("new-message", {
+    //       message: await message.populate(["sender", "replyTo"]),
+    //     });
+
+    //     // Send delivery status
+    //     socket.to(chatId).emit("message-delivered", {
+    //       messageId: message._id,
+    //       chatId,
+    //     });
+    //   } catch (error) {
+    //     logger.error("Message error:", error);
+    //     socket.emit("message-error", { error: "Failed to send message" });
+    //   }
+    // });
 
     // Handle typing indicators with debouncing
     socket.on("typing-start", async ({ chatId }) => {

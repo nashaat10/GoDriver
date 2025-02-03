@@ -206,46 +206,46 @@ export const getUserChats = catchAsync(async (req, res, next) => {
   });
 });
 
-export const markChatAsRead = catchAsync(async (req, res, next) => {
-  const { chatId } = req.params;
-  const userId = req.user.id;
+// export const markChatAsRead = catchAsync(async (req, res, next) => {
+//   const { chatId } = req.params;
+//   const userId = req.user.id;
 
-  // Find the chat by ID
-  const chat = await Chat.findById(chatId);
-  if (!chat) {
-    return next(new AppError("Chat not found", 404));
-  }
+//   // Find the chat by ID
+//   const chat = await Chat.findById(chatId);
+//   if (!chat) {
+//     return next(new AppError("Chat not found", 404));
+//   }
 
-  // Check if the user is a participant in the chat
-  if (!chat.participants.includes(userId)) {
-    return next(new AppError("You are not a participant in this chat", 403));
-  }
+//   // Check if the user is a participant in the chat
+//   if (!chat.participants.includes(userId)) {
+//     return next(new AppError("You are not a participant in this chat", 403));
+//   }
 
-  // Ensure messages is defined and is an array
-  if (!chat.messages || !Array.isArray(chat.messages)) {
-    chat.messages = [];
-  }
+//   // Ensure messages is defined and is an array
+//   if (!chat.messages || !Array.isArray(chat.messages)) {
+//     chat.messages = [];
+//   }
 
-  // Mark messages as read by the user
-  chat.messages.forEach((message) => {
-    if (message.sender.toString() !== userId) {
-      // Add the user to the readBy array if not already present
-      if (!message.readBy.some((read) => read.user.toString() === userId)) {
-        message.readBy.push({ user: userId, readAt: new Date() });
-      }
-    } else {
-      // If the user is the sender, mark the message as read only by them
-      message.readBy = [{ user: userId, readAt: new Date() }];
-    }
-  });
+//   // Mark messages as read by the user
+//   chat.messages.forEach((message) => {
+//     if (message.sender.toString() !== userId) {
+//       // Add the user to the readBy array if not already present
+//       if (!message.readBy.some((read) => read.user.toString() === userId)) {
+//         message.readBy.push({ user: userId, readAt: new Date() });
+//       }
+//     } else {
+//       // If the user is the sender, mark the message as read only by them
+//       message.readBy = [{ user: userId, readAt: new Date() }];
+//     }
+//   });
 
-  // Save the updated chat
-  await chat.save();
+//   // Save the updated chat
+//   await chat.save();
 
-  res.status(200).json({
-    status: "success",
-    data: {
-      chat,
-    },
-  });
-});
+//   res.status(200).json({
+//     status: "success",
+//     data: {
+//       chat,
+//     },
+//   });
+// });

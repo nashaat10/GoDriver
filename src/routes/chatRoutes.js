@@ -23,6 +23,6 @@ router.post(
 router.get("/", chatController.getUserChats);
 
 // Get chat history
-router.get("/read/:chatId", chatController.markChatAsRead);
+// router.get("/read/:chatId", chatController.markChatAsRead);
 
 export default router;

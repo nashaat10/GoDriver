@@ -38,7 +38,7 @@ const generateVehicleData = async () => {
     const alertQueue = "alerts";
     await channel.assertQueue(queue);
     await channel.assertQueue(alertQueue);
-    
+
     // Fetch all vehicle IDs directly from the database
     const vehicleIds = await mongoose.connection.db
       .collection("vehicles")
