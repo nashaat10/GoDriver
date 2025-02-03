@@ -7,7 +7,6 @@ import { setupSocketHandlers } from "./src/sockets/socket.js";
 import { setupChatHandlers } from "./src/sockets/chatSocket.js";
 import init from "./src/config/fcm.js";
 import { initSocket } from "./src/config/socket.js";
-import { fcmMessaging } from "./src/config/fcm.js";
 
 (async () => {
   try {
@@ -15,8 +14,6 @@ import { fcmMessaging } from "./src/config/fcm.js";
 
     // Create HTTP server
     const server = http.createServer(app);
-
-    // Initialize Socket.IO
 
     // Setup alert handlers
     initSocket(server);
@@ -27,9 +24,7 @@ import { fcmMessaging } from "./src/config/fcm.js";
     const DB = process.env.DATABASE_URL;
 
     await init();
-    console.log("fcmMessaging", fcmMessaging);
-    const dbConnection = await mongoose.connect(DB);
-    console.log("Connected to Mongo DB: ", dbConnection.connections[0].name);
+    await mongoose.connect(DB);
 
     const port = process.env.PORT || 4000;
     server.listen(port, () => {

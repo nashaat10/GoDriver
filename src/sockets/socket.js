@@ -1,7 +1,7 @@
 import amqp from "amqplib/callback_api.js";
 import { getIO } from "../config/socket.js";
-
-let rabbitConnection = null; // Store the RabbitMQ connection
+import User from "../models/userModel.js";
+let rabbitConnection = null;
 
 export const setupSocketHandlers = () => {
   const io = getIO();
@@ -71,8 +71,6 @@ export const setupSocketHandlers = () => {
     // Handle connection cleanup on socket disconnect
     socket.on("disconnect", () => {
       console.log("Client disconnected");
-      // Optionally close the RabbitMQ connection if no sockets are connected
-      // This can be managed with a counter to track active sockets
     });
 
     // Handle room subscription
