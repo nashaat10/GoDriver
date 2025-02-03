@@ -74,9 +74,13 @@ export const setupChatHandlers = () => {
 
         // Use a for...of loop to handle asynchronous operations properly
         for (const chat of chats) {
-          // Update all messages in the chat to mark their deliveryStatus as "delivered"
+          // Update messages sent to the user (where the user is a recipient)
           await Message.updateMany(
-            { chat: chat._id, sender: { $ne: userId } }, // Exclude messages sent by the user
+            {
+              chat: chat._id,
+              recipients: userId, // Ensure the user is a recipient
+              deliveryStatus: { $eq: "sent" }, // Only update if not already delivered
+            },
             { $set: { deliveryStatus: "delivered" } }
           );
 
