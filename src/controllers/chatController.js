@@ -110,12 +110,7 @@ export const sendMessage = catchAsync(async (req, res, next) => {
 });
 
 export const getChatHistory = catchAsync(async (req, res, next) => {
-  const { chatId } = req.params;
-
-  const chat = await Chat.findById(chatId)
-    .populate("participants", "name email profilePicture")
-    .populate("messages.sender", "name email profilePicture");
-
+  const chat = await Chat.findById(req.params.chatId);
   if (!chat) {
     return next(new AppError("Chat not found", 404));
   }
@@ -123,6 +118,13 @@ export const getChatHistory = catchAsync(async (req, res, next) => {
   if (!chat.participants.includes(req.user.id)) {
     return next(new AppError("You are not a participant in this chat", 403));
   }
+
+  chat.messages.forEach((message) => {
+    if (message.sender.toString() !== req.user.id) {
+      message.readBy.push(req.user.id);
+    }
+  });
+  await chat.save();
 
   res.status(200).json({
     status: "success",
@@ -178,27 +180,27 @@ export const getUserChats = catchAsync(async (req, res, next) => {
 });
 
 // make all messages for one chat as read
-export const markChatAsRead = catchAsync(async (req, res, next) => {
-  const chat = await Chat.findById(req.params.chatId);
-  if (!chat) {
-    return next(new AppError("Chat not found", 404));
-  }
+// export const markChatAsRead = catchAsync(async (req, res, next) => {
+//   const chat = await Chat.findById(req.params.chatId);
+//   if (!chat) {
+//     return next(new AppError("Chat not found", 404));
+//   }
 
-  if (!chat.participants.includes(req.user.id)) {
-    return next(new AppError("You are not a participant in this chat", 403));
-  }
+//   if (!chat.participants.includes(req.user.id)) {
+//     return next(new AppError("You are not a participant in this chat", 403));
+//   }
 
-  chat.messages.forEach((message) => {
-    if (message.sender.toString() !== req.user.id) {
-      message.readBy.push(req.user.id);
-    }
-  });
-  await chat.save();
+//   chat.messages.forEach((message) => {
+//     if (message.sender.toString() !== req.user.id) {
+//       message.readBy.push(req.user.id);
+//     }
+//   });
+//   await chat.save();
 
-  res.status(200).json({
-    status: "success",
-    data: {
-      chat,
-    },
-  });
-});
+//   res.status(200).json({
+//     status: "success",
+//     data: {
+//       chat,
+//     },
+//   });
+// });
