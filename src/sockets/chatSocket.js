@@ -138,22 +138,38 @@ export const setupChatHandlers = () => {
     });
     socket.on("delivered", async ({ userId }) => {
       try {
-        const messages = await Message.find({
-          recipient: userId,
-          deliveryStatus: { $eq: "sent" },
-        });
+        const chats = await Chat.find({ participants: userId }).distinct("_id");
 
-        for (const message of messages) {
-          message.deliveryStatus = "delivered";
-          await message.save();
+        if (chats.length === 0) {
+          console.log(`No chats found for user ${userId}`);
+          return;
         }
+
+        const updated = await Message.updateMany(
+          {
+            chat: { $in: chats },
+            recipient: userId, // Messages sent to the user
+            deliveryStatus: "sent",
+          },
+          { $set: { deliveryStatus: "delivered" } }
+        );
 
         io.to(userId).emit("delivered", {
           userId,
-          messageIds: messages.map((message) => message._id),
+          modifiedCount: updated.modifiedCount,
         });
+
+        console.log(
+          `Marked ${updated.modifiedCount} messages as delivered for user ${userId}`
+        );
       } catch (error) {
-        console.log("Mark all delivered error:", error);
+        console.error("Mark all delivered error:", error);
+
+        // Emit an error event to the client
+        socket.emit("delivered_error", {
+          message: "Failed to mark messages as delivered",
+          error: error.message,
+        });
       }
     });
 
