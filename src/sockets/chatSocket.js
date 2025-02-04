@@ -67,25 +67,24 @@ export const setupChatHandlers = () => {
       }
     });
 
-
-    // event to make all messages i all chats  are delivered when the user logged in
-    socket.on("delivered", async ({ userId }) => {
-      try {
-        const chats = await Chat.find({ participants: userId });
-        chats.forEach(async (chat) => {
-          await Message.updateMany(
-            { chat: chat._id },
-            { $addToSet: { deliveredTo: userId } }
-          );
-          io.to(chat._id).emit("delivered", {
-            chatId: chat._id,
-            userId,
-          });
-        });
-      } catch (error) {
-        console.log("Delivered error:", error);
-      }
-    });
+    // // event to make all messages i all chats  are delivered when the user logged in
+    // socket.on("delivered", async ({ userId }) => {
+    //   try {
+    //     const chats = await Chat.find({ participants: userId });
+    //     chats.forEach(async (chat) => {
+    //       await Message.updateMany(
+    //         { chat: chat._id },
+    //         { $addToSet: { deliveredTo: userId } }
+    //       );
+    //       io.to(chat._id).emit("delivered", {
+    //         chatId: chat._id,
+    //         userId,
+    //       });
+    //     });
+    //   } catch (error) {
+    //     console.log("Delivered error:", error);
+    //   }
+    // });
 
     // event to make all messages are read
     socket.on("in-chat", async ({ chatId }) => {
@@ -106,7 +105,6 @@ export const setupChatHandlers = () => {
         lastSeen: new Date(),
       });
     });
-
 
     // socket.on("in-chat", async (data) => {
     //   try {
