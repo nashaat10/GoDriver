@@ -30,10 +30,11 @@ export const setupChatHandlers = () => {
     connectedUsers.set(userId.toString(), socket.id);
 
     // Update user status and join rooms
-    await User.findByIdAndUpdate(userId, {
-      status: "online",
-      lastSeen: new Date(),
-    });
+    // await User.findByIdAndUpdate(userId, {
+    //   status: "online",
+    //   lastSeen: new Date(),
+    // }
+    // );
 
     const userChats = await Chat.find({ participants: userId });
     userChats.forEach((chat) => {
@@ -100,10 +101,17 @@ export const setupChatHandlers = () => {
     });
 
     socket.on("userActivity", async () => {
-      await User.findByIdAndUpdate(userId, {
-        status: "online",
-        lastSeen: new Date(),
-      });
+      await User.findByIdAndUpdate(
+        userId,
+        {
+          status: "online",
+          lastSeen: new Date(),
+        },
+        setInterval(() => {
+          const onlineUsers = Array.from(connectedUsers.keys());
+          io.emit("online-users", onlineUsers);
+        }, 1000)
+      );
     });
 
     // socket.on("in-chat", async (data) => {
@@ -261,8 +269,8 @@ export const setupChatHandlers = () => {
   });
 
   // Broadcast online status updates
-  setInterval(() => {
-    const onlineUsers = Array.from(connectedUsers.keys());
-    io.emit("online-users", onlineUsers);
-  }, 1000);
+  // setInterval(() => {
+  //   const onlineUsers = Array.from(connectedUsers.keys());
+  //   io.emit("online-users", onlineUsers);
+  // }, 1000);
 };
