@@ -71,7 +71,7 @@ export const setupChatHandlers = () => {
       try {
         const chats = await Chat.find({ participants: userId }).distinct("_id");
 
-        if (chatIds.length === 0) {
+        if (chats.length === 0) {
           console.log(`No chats found for user ${userId}`);
           return;
         }
