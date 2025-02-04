@@ -136,11 +136,10 @@ export const setupChatHandlers = () => {
         logger.error("Reaction error:", error);
       }
     });
-
-    socket.on("delivered", async ({ chatId }) => {
+    socket.on("delivered", async ({ userId }) => {
       try {
         const messages = await Message.find({
-          chat: chatId,
+          recipient: userId,
           deliveryStatus: { $eq: "sent" },
         });
 
@@ -149,12 +148,12 @@ export const setupChatHandlers = () => {
           await message.save();
         }
 
-        io.to(chatId).emit("delivered", {
-          chatId,
+        io.to(userId).emit("delivered", {
+          userId,
           messageIds: messages.map((message) => message._id),
         });
       } catch (error) {
-        logger.error("Mark all delivered error:", error);
+        console.log(error.message);
       }
     });
 
