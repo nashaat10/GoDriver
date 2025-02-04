@@ -12,7 +12,7 @@ const fileFilter = (req, file, cb) => {
   const allowedTypes = [
     "image",
     "video",
-    "audio",
+    "audio/ogg",
     "application",
     "application/pdf",
   ];
@@ -53,7 +53,6 @@ export const validateCreateMessage = [
     .isMongoId()
     .withMessage("Invalid reply message ID"),
 ];
-
 export const createMessage = catchAsync(async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -73,11 +72,23 @@ export const createMessage = catchAsync(async (req, res, next) => {
   }
 
   const uploadedAttachments = [];
+  let voiceNote = null;
+
   if (attachments && attachments.length > 0) {
     for (const file of attachments) {
       let resourceType = "auto";
+
+      const isVoiceNote = [
+        "audio/ogg",
+        "audio/webm",
+        "audio/mpeg",
+        "audio/wav",
+      ].includes(file.mimetype);
+
       if (file.mimetype === "application/pdf") {
         resourceType = "raw";
+      } else if (isVoiceNote) {
+        resourceType = "video";
       }
 
       const result = await cloudinary.v2.uploader.upload(
@@ -87,11 +98,17 @@ export const createMessage = catchAsync(async (req, res, next) => {
         }
       );
 
-      uploadedAttachments.push({
+      const uploadedFile = {
         url: result.secure_url,
         public_id: result.public_id,
         fileType: file.mimetype,
-      });
+      };
+
+      if (isVoiceNote) {
+        voiceNote = uploadedFile;
+      } else {
+        uploadedAttachments.push(uploadedFile);
+      }
     }
   }
 
@@ -100,6 +117,7 @@ export const createMessage = catchAsync(async (req, res, next) => {
     sender: req.user.id,
     content,
     attachments: uploadedAttachments,
+    voiceNote,
     replyTo,
   });
 

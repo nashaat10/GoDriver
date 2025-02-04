@@ -67,75 +67,35 @@ export const setupChatHandlers = () => {
       }
     });
 
-    // // event to make all messages i all chats  are delivered when the user logged in
-    // socket.on("delivered", async ({ userId }) => {
-    //   try {
-    //     const chats = await Chat.find({ participants: userId });
-    //     chats.forEach(async (chat) => {
-    //       await Message.updateMany(
-    //         { chat: chat._id },
-    //         { $addToSet: { deliveredTo: userId } }
-    //       );
-    //       io.to(chat._id).emit("delivered", {
-    //         chatId: chat._id,
-    //         userId,
-    //       });
-    //     });
-    //   } catch (error) {
-    //     console.log("Delivered error:", error);
-    //   }
-    // });
-
-    // event to make all messages are read
-    socket.on("in-chat", async ({ chatId }) => {
+    socket.on("in-chat", async (data) => {
       try {
-        await Message.updateMany(
-          { chat: chatId },
-          { $addToSet: { readBy: { user: userId, readAt: new Date() } } },
-          { $set: { deliveryStatus: "read" } }
-        );
-        io.to(chatId).emit("all-messages-read", { chatId, userId });
+        const { chatId, content, attachments, replyTo } = data;
+        const message = await Message.create({
+          chat: chatId,
+          sender: userId,
+          content,
+          attachments,
+          replyTo,
+        });
+
+        await Chat.findByIdAndUpdate(chatId, {
+          lastMessage: message._id,
+        });
+
+        io.to(chatId).emit("new-message", {
+          message: await message.populate(["sender", "replyTo"]),
+        });
+
+        // Send delivery status
+        socket.to(chatId).emit("message-delivered", {
+          messageId: message._id,
+          chatId,
+        });
       } catch (error) {
-        console.log("Delivered error:", error);
+        logger.error("Message error:", error);
+        socket.emit("message-error", { error: "Failed to send message" });
       }
     });
-
-    socket.on("userActivity", async () => {
-      await User.findByIdAndUpdate(userId, {
-        status: "online",
-        lastSeen: new Date(),
-      });
-    });
-
-    // socket.on("in-chat", async (data) => {
-    //   try {
-    //     const { chatId, content, attachments, replyTo } = data;
-    //     const message = await Message.create({
-    //       chat: chatId,
-    //       sender: userId,
-    //       content,
-    //       attachments,
-    //       replyTo,
-    //     });
-
-    //     await Chat.findByIdAndUpdate(chatId, {
-    //       lastMessage: message._id,
-    //     });
-
-    //     io.to(chatId).emit("new-message", {
-    //       message: await message.populate(["sender", "replyTo"]),
-    //     });
-
-    //     // Send delivery status
-    //     socket.to(chatId).emit("message-delivered", {
-    //       messageId: message._id,
-    //       chatId,
-    //     });
-    //   } catch (error) {
-    //     logger.error("Message error:", error);
-    //     socket.emit("message-error", { error: "Failed to send message" });
-    //   }
-    // });
 
     // Handle typing indicators with debouncing
     socket.on("typing-start", async ({ chatId }) => {
@@ -206,6 +166,24 @@ export const setupChatHandlers = () => {
         logger.error("Reaction error:", error);
       }
     });
+
+    // Handle disconnection
+    socket.on("disconnect", async () => {
+      connectedUsers.delete(userId.toString());
+      await User.findByIdAndUpdate(userId, {
+        status: "offline",
+        lastSeen: new Date(),
+      });
+
+      // Notify others about user's offline status
+      userChats.forEach((chat) => {
+        socket.to(chat._id.toString()).emit("user-offline", {
+          userId,
+          lastSeen: new Date(),
+        });
+      });
+    });
+
     socket.on("delivered", async ({ userId }) => {
       try {
         const chats = await Chat.find({ participants: userId }).distinct("_id");
@@ -221,7 +199,7 @@ export const setupChatHandlers = () => {
             recipient: userId, // Messages sent to the user
             deliveryStatus: "sent",
           },
-          { $set: { deliveryStatus: "delivered" } }
+          { deliveryStatus: "delivered" }
         );
 
         io.to(userId).emit("delivered", {
@@ -241,23 +219,6 @@ export const setupChatHandlers = () => {
           error: error.message,
         });
       }
-    });
-
-    // Handle disconnection
-    socket.on("disconnect", async () => {
-      connectedUsers.delete(userId.toString());
-      await User.findByIdAndUpdate(userId, {
-        status: "offline",
-        lastSeen: new Date(),
-      });
-
-      // Notify others about user's offline status
-      userChats.forEach((chat) => {
-        socket.to(chat._id.toString()).emit("user-offline", {
-          userId,
-          lastSeen: new Date(),
-        });
-      });
     });
   });
 
