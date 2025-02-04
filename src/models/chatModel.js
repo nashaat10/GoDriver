@@ -37,7 +37,7 @@ const chatSchema = new mongoose.Schema(
       required: function () {
         return this.type === "group";
       },
-      uniuqe: true
+      uniuqe: true,
     },
     participants: [
       {
@@ -63,7 +63,7 @@ const chatSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
+chatSchema.index({ participants: 1 });
 export default mongoose.model("Chat", chatSchema);
 
 //     POST /api/chats
