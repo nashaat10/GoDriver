@@ -77,7 +77,6 @@ const messageSchema = new mongoose.Schema(
     },
     isRead: {
       type: Boolean,
-      required: true,
     },
   },
   {
