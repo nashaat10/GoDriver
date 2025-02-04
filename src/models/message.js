@@ -30,6 +30,8 @@ const messageSchema = new mongoose.Schema(
         public_id: String,
         fileType: String, // e.g., image, video, etc.
       },
+
+      // add voice notes 
     ],
     readBy: [
       {
