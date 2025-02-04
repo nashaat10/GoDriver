@@ -67,8 +67,7 @@ export const setupChatHandlers = () => {
       }
     });
 
-<<<<<<< Updated upstream
-=======
+
     // event to make all messages i all chats  are delivered when the user logged in
     socket.on("delivered", async ({ userId }) => {
       try {
@@ -139,7 +138,6 @@ export const setupChatHandlers = () => {
     //   }
     // });
 
->>>>>>> Stashed changes
     // Handle typing indicators with debouncing
     socket.on("typing-start", async ({ chatId }) => {
       const key = `${userId}-${chatId}`;
