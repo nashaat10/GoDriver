@@ -134,28 +134,28 @@ export const setupChatHandlers = () => {
       }
     });
 
-    // Handle read receipts
-    socket.on("message-read", async ({ messageId, chatId }) => {
-      try {
-        await Message.findByIdAndUpdate(messageId, {
-          $addToSet: {
-            readBy: {
-              user: userId,
-              readAt: new Date(),
-            },
-          },
-          deliveryStatus: "read",
-        });
+    // // Handle read receipts
+    // socket.on("message-read", async ({ messageId, chatId }) => {
+    //   try {
+    //     await Message.findByIdAndUpdate(messageId, {
+    //       $addToSet: {
+    //         readBy: {
+    //           user: userId,
+    //           readAt: new Date(),
+    //         },
+    //       },
+    //       deliveryStatus: "read",
+    //     });
 
-        socket.to(chatId).emit("receipt-updated", {
-          messageId,
-          userId,
-          status: "read",
-        });
-      } catch (error) {
-        // logger.error("Read receipt error:", error);
-      }
-    });
+    //     socket.to(chatId).emit("receipt-updated", {
+    //       messageId,
+    //       userId,
+    //       status: "read",
+    //     });
+    //   } catch (error) {
+    //     // logger.error("Read receipt error:", error);
+    //   }
+    // });
 
     // Handle reactions
     socket.on("message-reaction", async ({ messageId, emoji }) => {
