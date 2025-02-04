@@ -92,7 +92,8 @@ export const setupChatHandlers = () => {
       try {
         await Message.updateMany(
           { chat: chatId },
-          { $addToSet: { readBy: { user: userId, readAt: new Date() } } }
+          { $addToSet: { readBy: { user: userId, readAt: new Date() } } },
+          { $set: { deliveryStatus: "read" } }
         );
         io.to(chatId).emit("all-messages-read", { chatId, userId });
       } catch (error) {
