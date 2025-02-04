@@ -69,42 +69,43 @@ export const setupChatHandlers = () => {
 
     socket.on("delivered", async ({ userId }) => {
       try {
-        // Find all chat IDs where the user is a participant
-        const chatIds = await Chat.find({ participants: userId }).distinct(
-          "_id"
-        );
+        const chats = await Chat.find({ participants: userId }).distinct("_id");
 
-        if (chatIds.length === 0) return; // No chats found, exit early
+        if (chatIds.length === 0) {
+          console.log(`No chats found for user ${userId}`);
+          return;
+        }
 
-        // Update all messages with deliveryStatus "sent" to "delivered"
         const updated = await Message.updateMany(
           {
-            chat: { $in: chatIds }, // Messages in these chats
-            recipients: { $in: [userId] }, // User is a recipient
-            deliveryStatus: "sent", // Only update messages that are still "sent"
+            chat: { $in: chats }, // Messages in the user's chats
+            recipients: userId, // Messages where the user is a recipient
+            deliveryStatus: "sent", // Only update messages with status "sent"
           },
           { $set: { deliveryStatus: "delivered" } }
         );
 
-        // Emit "delivered" event for all affected chats
-        chatIds.forEach((chatId) => {
-          io.to(chatId.toString()).emit("delivered", { chatId, userId });
-        });
+        // Step 3: Emit "delivered" event for all affected chats
+        if (updated.modifiedCount > 0) {
+          chats.forEach((chatId) => {
+            io.to(chatId.toString()).emit("delivered", { chatId, userId });
+          });
 
-        console.log(
-          `Marked ${updated.modifiedCount} messages as delivered for user ${userId}`
-        );
+          console.log(
+            `Marked ${updated.modifiedCount} messages as delivered for user ${userId}`
+          );
+        } else {
+          console.log(`No messages to mark as delivered for user ${userId}`);
+        }
       } catch (error) {
         console.error("Delivered error:", error);
 
-        // Optionally, emit an error event to the client
         socket.emit("delivered_error", {
           message: "Failed to mark messages as delivered",
           error: error.message,
         });
       }
     });
-
     // Handle typing indicators with debouncing
     socket.on("typing-start", async ({ chatId }) => {
       const key = `${userId}-${chatId}`;
