@@ -72,11 +72,8 @@ const messageSchema = new mongoose.Schema(
     },
     deliveryStatus: {
       type: String,
-      enum: ["sent", "delivered"],
+      enum: ["sent", "delivered", "read"],
       default: "sent",
-    },
-    isRead: {
-      type: Boolean,
     },
   },
   {

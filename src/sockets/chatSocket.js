@@ -3,7 +3,6 @@ import User from "../models/userModel.js";
 import Message from "../models/message.js";
 import Chat from "../models/chatModel.js";
 import { getIO } from "../config/socket.js";
-import { Socket } from "socket.io";
 // import logger from '../utils/logger.js';
 
 export const setupChatHandlers = () => {
@@ -138,6 +137,27 @@ export const setupChatHandlers = () => {
       }
     });
 
+    socket.on("delivered", async ({ chatId }) => {
+      try {
+        const messages = await Message.find({
+          chat: chatId,
+          deliveryStatus: { $eq: "sent" },
+        });
+
+        for (const message of messages) {
+          message.deliveryStatus = "delivered";
+          await message.save();
+        }
+
+        io.to(chatId).emit("delivered", {
+          chatId,
+          messageIds: messages.map((message) => message._id),
+        });
+      } catch (error) {
+        logger.error("Mark all delivered error:", error);
+      }
+    });
+
     // Handle disconnection
     socket.on("disconnect", async () => {
       connectedUsers.delete(userId.toString());
@@ -153,77 +173,6 @@ export const setupChatHandlers = () => {
           lastSeen: new Date(),
         });
       });
-    });
-
-    socket.on("user_connected", async ({ userId }) => {
-      if (!userId) return;
-
-      onlineUsers.add(userId); // Mark user as online
-
-      try {
-        // Find all chat IDs where the user is a participant
-        const chatIds = await Chat.find({ participants: userId }).distinct(
-          "_id"
-        );
-
-        if (chatIds.length === 0) return; // No chats found, exit early
-
-        // Update all messages sent to the user that are still marked as "sent"
-        const updated = await Message.updateMany(
-          {
-            chat: { $in: chatIds },
-            recipients: { $in: [userId] },
-            deliveryStatus: "sent",
-          },
-          { $set: { deliveryStatus: "delivered" } }
-        );
-
-        // Emit "delivered" event for all affected chats
-        chatIds.forEach((chatId) => {
-          io.to(chatId.toString()).emit("delivered", { chatId, userId });
-        });
-
-        console.log(
-          `Marked ${updated.modifiedCount} messages as delivered for user ${userId} upon connection`
-        );
-      } catch (error) {
-        console.error(
-          "Error marking messages as delivered on connection:",
-          error
-        );
-      }
-    });
-
-    socket.on("in-chat", async ({ chatId, userId }) => {
-      try {
-        const chat = await Chat.findById(chatId);
-        if (!chat) {
-          throw new Error("Chat not found");
-        }
-
-        if (!chat.participants.includes(userId)) {
-          throw new Error("User is not a participant in this chat");
-        }
-
-        socket.join(chatId.toString());
-
-        // Step 4: Emit an "in-chat" event to all participants
-        io.to(chatId.toString()).emit("in-chat", {
-          chatId,
-          userId,
-          message: `${userId} is now in the chat`, // Optional: Add a message
-        });
-
-        console.log(`User ${userId} joined chat ${chatId}`);
-      } catch (error) {
-        console.error("Join chat error:", error);
-
-        // Emit an error event to the client
-        socket.emit("joinChat_error", {
-          message: "Failed to join chat",
-          error: error.message,
-        });
-      }
     });
   });
 
