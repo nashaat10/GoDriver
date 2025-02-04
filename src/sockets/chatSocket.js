@@ -154,6 +154,46 @@ export const setupChatHandlers = () => {
         });
       });
     });
+
+    socket.on("user_connected", async ({ userId }) => {
+      if (!userId) return;
+
+      onlineUsers.add(userId); // Mark user as online
+
+      try {
+        // Find all chat IDs where the user is a participant
+        const chatIds = await Chat.find({ participants: userId }).distinct(
+          "_id"
+        );
+
+        if (chatIds.length === 0) return; // No chats found, exit early
+
+        // Update all messages sent to the user that are still marked as "sent"
+        const updated = await Message.updateMany(
+          {
+            chat: { $in: chatIds },
+            recipients: { $in: [userId] },
+            deliveryStatus: "sent",
+          },
+          { $set: { deliveryStatus: "delivered" } }
+        );
+
+        // Emit "delivered" event for all affected chats
+        chatIds.forEach((chatId) => {
+          io.to(chatId.toString()).emit("delivered", { chatId, userId });
+        });
+
+        console.log(
+          `Marked ${updated.modifiedCount} messages as delivered for user ${userId} upon connection`
+        );
+      } catch (error) {
+        console.error(
+          "Error marking messages as delivered on connection:",
+          error
+        );
+      }
+    });
+
     socket.on("in-chat", async ({ chatId, userId }) => {
       try {
         const chat = await Chat.findById(chatId);
