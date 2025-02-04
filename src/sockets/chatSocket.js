@@ -153,7 +153,7 @@ export const setupChatHandlers = () => {
           messageIds: messages.map((message) => message._id),
         });
       } catch (error) {
-        console.log(error.message);
+        console.log("Mark all delivered error:", error);
       }
     });
 
