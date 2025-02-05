@@ -181,6 +181,42 @@ export const setupChatHandlers = () => {
         });
       }
     });
+
+    socket.on("in-chat", async ({ chatId, userId }) => {
+      try {
+        const chat = await Chat.findById(chatId);
+        if (!chat) {
+          return socket.emit("error", { message: "Chat not found" });
+        }
+
+        const updatedMessages = [];
+
+        chat.messages.forEach((message) => {
+          if (
+            message.sender.toString() !== userId &&
+            !message.readBy.includes(userId)
+          ) {
+            message.readBy.push(userId);
+            updatedMessages.push(message);
+          }
+        });
+
+        await chat.save();
+
+        // Emit to all chat participants
+        io.to(chatId).emit("messages-read", {
+          chatId,
+          readerId: userId,
+          messageIds: updatedMessages.map((m) => m._id),
+        });
+      } catch (error) {
+        console.log("Failed to mark messages as read:", error);
+        socket.emit("error", {
+          message: "Failed to mark messages as read",
+          error: error.message,
+        });
+      }
+    });
   });
 
   // Broadcast online status updates
