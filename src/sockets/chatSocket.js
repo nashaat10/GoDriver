@@ -182,30 +182,36 @@ export const setupChatHandlers = () => {
       }
     });
 
-    socket.on("in-chat", async ({ chatId }) => {
-      socket.join(chatId);
+    socket.on("in-chat", async ({ chatId, userId }) => {
+      try {
+        const chat = await Chat.findById(chatId);
+        if (!chat) {
+          return socket.emit("error", { message: "Chat not found" });
+        }
 
-      const chat = await Chat.findById(chatId);
-      if (!chat) {
-        console.error(`Chat not found: ${chatId}`);
-        return;
+        chat.messages.forEach((message) => {
+          if (
+            message.sender.toString() !== userId &&
+            !message.readBy.includes(userId)
+          ) {
+            message.readBy.push(userId);
+          }
+        });
+
+        await chat.save();
+
+        io.to(chatId).emit("messages-read", {
+          chatId,
+          userId,
+          messageIds: chat.messages.map((message) => message._id),
+        });
+      } catch (error) {
+        console.log("Failed to mark messages as read:", error);
+        socket.emit("error", {
+          message: "Failed to mark messages as read",
+          error: error.message,
+        });
       }
-
-      const messages = await Message.find({ chat: chatId }).populate("sender");
-      socket.emit("message-history", { chatId, messages });
-      // mark all messages as read
-      const updated = await Message.updateMany(
-        {
-          chat: chatId,
-          recipient: userId,
-          deliveryStatus: "delivered",
-        },
-        { deliveryStatus: "read" }
-      );
-
-      console.log(
-        `Marked ${updated.modifiedCount} messages as read for user ${userId}`
-      );
     });
   });
 
