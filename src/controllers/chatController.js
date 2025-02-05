@@ -181,9 +181,10 @@ export const getUserChats = catchAsync(async (req, res, next) => {
 });
 
 export const getChat = catchAsync(async (req, res, next) => {
-  const chat = await Chat.findById(req.params.chatId)
-    .populate("participants", "name email profilePicture role")
-    .populate({ path: "messages.sender", select: "name email profilePicture" });
+  const chat = await Chat.findById(req.params.chatId).populate(
+    "participants",
+    "name email profilePicture role"
+  );
 
   if (!chat) {
     return next(new AppError("Chat not found", 404));
