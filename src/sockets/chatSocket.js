@@ -67,49 +67,49 @@ export const setupChatHandlers = () => {
       }
     });
 
-    socket.on("userActivity", async () => {
-      await User.findByIdAndUpdate(
-        userId,
-        {
-          status: "online",
-          lastSeen: new Date(),
-        },
-        setInterval(() => {
-          const onlineUsers = Array.from(connectedUsers.keys());
-          io.emit("online-users", onlineUsers);
-        }, 1000)
-      );
-    });
+    // socket.on("userActivity", async () => {
+    //   await User.findByIdAndUpdate(
+    //     userId,
+    //     {
+    //       status: "online",
+    //       lastSeen: new Date(),
+    //     },
+    //     setInterval(() => {
+    //       const onlineUsers = Array.from(connectedUsers.keys());
+    //       io.emit("online-users", onlineUsers);
+    //     }, 1000)
+    //   );
+    // });
 
-    socket.on("in-chat", async (data) => {
-      try {
-        const { chatId, content, attachments, replyTo } = data;
-        const message = await Message.create({
-          chat: chatId,
-          sender: userId,
-          content,
-          attachments,
-          replyTo,
-        });
+    // socket.on("in-chat", async (data) => {
+    //   try {
+    //     const { chatId, content, attachments, replyTo } = data;
+    //     const message = await Message.create({
+    //       chat: chatId,
+    //       sender: userId,
+    //       content,
+    //       attachments,
+    //       replyTo,
+    //     });
 
-        await Chat.findByIdAndUpdate(chatId, {
-          lastMessage: message._id,
-        });
+    //     await Chat.findByIdAndUpdate(chatId, {
+    //       lastMessage: message._id,
+    //     });
 
-        io.to(chatId).emit("new-message", {
-          message: await message.populate(["sender", "replyTo"]),
-        });
+    //     io.to(chatId).emit("new-message", {
+    //       message: await message.populate(["sender", "replyTo"]),
+    //     });
 
-        // Send delivery status
-        socket.to(chatId).emit("message-delivered", {
-          messageId: message._id,
-          chatId,
-        });
-      } catch (error) {
-        logger.error("Message error:", error);
-        socket.emit("message-error", { error: "Failed to send message" });
-      }
-    });
+    //     // Send delivery status
+    //     socket.to(chatId).emit("message-delivered", {
+    //       messageId: message._id,
+    //       chatId,
+    //     });
+    //   } catch (error) {
+    //     logger.error("Message error:", error);
+    //     socket.emit("message-error", { error: "Failed to send message" });
+    //   }
+    // });
 
     // Handle typing indicators with debouncing
     socket.on("typing-start", async ({ chatId }) => {
