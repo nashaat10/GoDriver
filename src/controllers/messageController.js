@@ -12,7 +12,7 @@ const fileFilter = (req, file, cb) => {
   const allowedTypes = [
     "image",
     "video",
-    "audio/aac",
+    "audio",
     "application",
     "application/pdf",
   ];
@@ -78,7 +78,7 @@ export const createMessage = catchAsync(async (req, res, next) => {
     for (const file of attachments) {
       let resourceType = "auto";
 
-      const isVoiceNote = ["audio/aac", "audio/oog"].includes(file.mimetype);
+      const isVoiceNote = ["audio", "audio"].includes(file.mimetype);
 
       if (file.mimetype === "application/pdf") {
         resourceType = "raw";
