@@ -12,7 +12,7 @@ const fileFilter = (req, file, cb) => {
   const allowedTypes = [
     "image",
     "video",
-    "audio/ogg",
+    "audio/aac",
     "application",
     "application/pdf",
   ];
@@ -79,7 +79,7 @@ export const createMessage = catchAsync(async (req, res, next) => {
       let resourceType = "auto";
 
       const isVoiceNote = [
-        "audio/ogg",
+        "audio/aac",
         "audio/webm",
         "audio/mpeg",
         "audio/wav",
