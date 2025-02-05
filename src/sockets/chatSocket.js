@@ -181,6 +181,32 @@ export const setupChatHandlers = () => {
         });
       }
     });
+
+    socket.on("in-chat", async ({ chatId }) => {
+      socket.join(chatId);
+
+      const chat = await Chat.findById(chatId);
+      if (!chat) {
+        console.error(`Chat not found: ${chatId}`);
+        return;
+      }
+
+      const messages = await Message.find({ chat: chatId }).populate("sender");
+      socket.emit("message-history", { chatId, messages });
+      // mark all messages as read
+      const updated = await Message.updateMany(
+        {
+          chat: chatId,
+          recipient: userId,
+          deliveryStatus: "delivered",
+        },
+        { deliveryStatus: "read" }
+      );
+
+      console.log(
+        `Marked ${updated.modifiedCount} messages as read for user ${userId}`
+      );
+    });
   });
 
   // Broadcast online status updates
