@@ -198,21 +198,11 @@ export const getChat = catchAsync(async (req, res, next) => {
     return next(new AppError("You are not a participant in this chat", 403));
   }
 
-  // Update unread messages where the recipient is the current user
-  await Message.updateMany(
-    {
-      chat: req.params.chatId,
-      recipient: req.user.id,
-      deliveryStatus: { $ne: "read" },
-    },
-    { $set: { deliveryStatus: "read" } }
-  );
-
   // return chat data with all messages
-  const messages = await Message.find({ chat: req.params.chatId }).populate(
-    "sender",
-    "name email profilePicture role"
-  );
+  const messages = await Message.findByIdAndUpdate(
+    { chat: chat._id },
+    { deliveryStatus: "read" }
+  ).populate("sender", "name email profilePicture role");
 
   res.status(200).json({
     status: "success",
