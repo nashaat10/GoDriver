@@ -184,52 +184,36 @@ export const setupChatHandlers = () => {
 
     socket.on("in-chat", async ({ chatId, userId }) => {
       try {
-        socket.join(chatId);
-
         const chat = await Chat.findById(chatId);
         if (!chat) {
-          console.error(`Chat not found: ${chatId}`);
-          return;
+          return socket.emit("error", { message: "Chat not found" });
         }
 
-        // Get messages and send history
-        const messages = await Message.find({ chat: chatId }).populate(
-          "sender"
-        );
-        socket.emit("message-history", { chatId, messages });
+        const updatedMessages = [];
 
-        // Mark messages as read
-        const updateResult = await Message.updateMany(
-          {
-            chat: chatId,
-            recipient: userId,
-            deliveryStatus: "delivered",
-          },
-          { deliveryStatus: "read" }
-        );
+        chat.messages.forEach((message) => {
+          if (
+            message.sender.toString() !== userId &&
+            !message.readBy.includes(userId)
+          ) {
+            message.readBy.push(userId);
+            updatedMessages.push(message);
+          }
+        });
 
-        if (updateResult.modifiedCount > 0) {
-          // Get updated messages
-          const updatedMessages = await Message.find({
-            chat: chatId,
-            recipient: userId,
-            deliveryStatus: "read",
-          });
+        await chat.save();
 
-          // Emit to all chat participants
-          io.to(chatId).emit("messages-read", {
-            chatId,
-            readerId: userId,
-            messageIds: updatedMessages.map((m) => m._id),
-          });
-
-          console.log(`Marked ${updateResult.modifiedCount} messages as read`);
-        }
-      } catch (error) {
-        console.error("Chat join error:", error);
-        socket.emit("chat-error", {
-          message: "Failed to join chat",
+        // Emit to all chat participants
+        io.to(chatId).emit("messages-read", {
           chatId,
+          readerId: userId,
+          messageIds: updatedMessages.map((m) => m._id),
+        });
+      } catch (error) {
+        logger.error("Failed to mark messages as read:", error);
+        socket.emit("error", {
+          message: "Failed to mark messages as read",
+          error: error.message,
         });
       }
     });
