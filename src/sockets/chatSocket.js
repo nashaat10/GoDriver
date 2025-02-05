@@ -67,19 +67,19 @@ export const setupChatHandlers = () => {
       }
     });
 
-    // socket.on("userActivity", async () => {
-    //   await User.findByIdAndUpdate(
-    //     userId,
-    //     {
-    //       status: "online",
-    //       lastSeen: new Date(),
-    //     },
-    //     setInterval(() => {
-    //       const onlineUsers = Array.from(connectedUsers.keys());
-    //       io.emit("online-users", onlineUsers);
-    //     }, 1000)
-    //   );
-    // });
+    socket.on("userActivity", async () => {
+      await User.findByIdAndUpdate(
+        userId,
+        {
+          status: "online",
+          lastSeen: new Date(),
+        },
+        setInterval(() => {
+          const onlineUsers = Array.from(connectedUsers.keys());
+          io.emit("online-users", onlineUsers);
+        }, 1000)
+      );
+    });
 
     // socket.on("in-chat", async (data) => {
     //   try {
