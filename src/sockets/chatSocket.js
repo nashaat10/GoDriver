@@ -210,7 +210,7 @@ export const setupChatHandlers = () => {
           messageIds: updatedMessages.map((m) => m._id),
         });
       } catch (error) {
-        logger.error("Failed to mark messages as read:", error);
+        console.log("Failed to mark messages as read:", error);
         socket.emit("error", {
           message: "Failed to mark messages as read",
           error: error.message,
