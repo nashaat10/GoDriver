@@ -184,7 +184,6 @@ export const setupChatHandlers = () => {
 
     socket.on("in-chat", async ({ chatId, userId }) => {
       try {
-        const userId = socket.user._id; // Assuming user ID is available from auth
         socket.join(chatId);
 
         const chat = await Chat.findById(chatId);
