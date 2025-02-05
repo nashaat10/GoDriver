@@ -78,12 +78,7 @@ export const createMessage = catchAsync(async (req, res, next) => {
     for (const file of attachments) {
       let resourceType = "auto";
 
-      const isVoiceNote = [
-        "audio/aac",
-        "audio/webm",
-        "audio/mpeg",
-        "audio/wav",
-      ].includes(file.mimetype);
+      const isVoiceNote = ["audio/aac", "audio/oog"].includes(file.mimetype);
 
       if (file.mimetype === "application/pdf") {
         resourceType = "raw";
@@ -117,7 +112,6 @@ export const createMessage = catchAsync(async (req, res, next) => {
     sender: req.user.id,
     content,
     attachments: uploadedAttachments,
-    voiceNote,
     replyTo,
   });
 
