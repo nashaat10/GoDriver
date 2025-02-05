@@ -21,6 +21,7 @@ router.post(
 );
 
 router.get("/", chatController.getUserChats);
+router.get("/:chatId", chatController.getChat);
 
 // Get chat history
 // router.get("/read/:chatId", chatController.markChatAsRead);

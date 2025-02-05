@@ -4,6 +4,7 @@ import AppError from "../utils/appError.js";
 import { getIO } from "../config/socket.js";
 import User from "../models/userModel.js";
 import { validationResult } from "express-validator";
+import Message from "../models/message.js";
 
 export const createChat = catchAsync(async (req, res, next) => {
   const errors = validationResult(req);
@@ -179,13 +180,35 @@ export const getUserChats = catchAsync(async (req, res, next) => {
   });
 });
 
-export const markChatAsRead = catchAsync(async (req, res, next) => {
-  const { chatId } = req.params;
-  const userId = req.user.id;
+export const getChat = catchAsync(async (req, res, next) => {
+  const chat = await Chat.findById(req.params.chatId)
+    .populate("participants", "name email profilePicture role")
+    .populate({ path: "messages.sender", select: "name email profilePicture" });
 
-  // Find the chat by ID
-  const chat = await Chat.findById(chatId);
   if (!chat) {
     return next(new AppError("Chat not found", 404));
   }
+
+  if (
+    !chat.participants.some(
+      (participant) => participant._id.toString() === req.user.id
+    )
+  ) {
+    return next(new AppError("You are not a participant in this chat", 403));
+  }
+
+  // Update unread messages where the recipient is the current user
+  await Message.updateMany(
+    {
+      chat: req.params.chatId,
+      recipient: req.user.id,
+      deliveryStatus: { $ne: "read" },
+    },
+    { $set: { deliveryStatus: "read" } }
+  );
+
+  res.status(200).json({
+    status: "success",
+    data: { chat },
+  });
 });
