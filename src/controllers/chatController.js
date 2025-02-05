@@ -181,10 +181,9 @@ export const getUserChats = catchAsync(async (req, res, next) => {
 });
 
 export const getChat = catchAsync(async (req, res, next) => {
-  const chat = await Chat.findById(req.params.chatId).populate(
-    "participants",
-    "name email profilePicture role"
-  );
+  const chat = await Chat.findById(req.params.chatId)
+    .populate("participants", "name email profilePicture role")
+    .populate("messages.sender", "name email profilePicture role");
 
   if (!chat) {
     return next(new AppError("Chat not found", 404));
@@ -213,7 +212,7 @@ export const getChat = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     data: {
-      messages,
+      chat,
     },
   });
 });

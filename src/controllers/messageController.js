@@ -155,7 +155,10 @@ export const getMessageHistory = catchAsync(async (req, res, next) => {
     query.createdAt = { $lt: new Date(before) };
   }
 
-  const messages = await Message.find(query)
+  const messages = await Message.findByIdAndUpdate({
+    chat: chatId,
+    deliveryStatus: "read",
+  })
     .populate("sender", "name email profilePicture")
     .populate("replyTo");
 
