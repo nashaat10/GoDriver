@@ -208,8 +208,17 @@ export const getChat = catchAsync(async (req, res, next) => {
     { $set: { deliveryStatus: "read" } }
   );
 
+  // return chat data with all messages
+  const messages = await Message.find({ chat: req.params.chatId }).populate(
+    "sender",
+    "name email profilePicture role"
+  );
+
   res.status(200).json({
     status: "success",
-    data: { chat },
+    data: {
+      chat,
+      messages,
+    },
   });
 });
