@@ -198,11 +198,17 @@ export const getChat = catchAsync(async (req, res, next) => {
     return next(new AppError("You are not a participant in this chat", 403));
   }
 
-  // return chat data with all messages
-  const messages = await Message.findByIdAndUpdate(
-    { chat: chat._id },
-    { deliveryStatus: "read" }
-  ).populate("sender", "name email profilePicture role");
+  // Update deliveryStatus to "read" for all messages in the chat
+  await Message.updateMany(
+    { chat: chat.id },
+    { $set: { deliveryStatus: "read" } }
+  );
+
+  // Retrieve all messages in the chat
+  const messages = await Message.find({ chat: chat.id }).populate(
+    "sender",
+    "name email profilePicture role"
+  );
 
   res.status(200).json({
     status: "success",
