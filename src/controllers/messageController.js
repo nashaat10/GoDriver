@@ -144,7 +144,6 @@ export const createMessage = catchAsync(async (req, res, next) => {
     },
   });
 });
-
 export const getMessageHistory = catchAsync(async (req, res, next) => {
   const { chatId } = req.params;
   const { before } = req.query;
@@ -155,10 +154,10 @@ export const getMessageHistory = catchAsync(async (req, res, next) => {
     query.createdAt = { $lt: new Date(before) };
   }
 
-  const messages = await Message.findByIdAndUpdate(
-    { chat: chatId },
-    { deliveryStatus: "read" }
-  )
+  await Message.updateMany(query, { $set: { deliveryStatus: "read" } });
+
+  // Retrieve the message history
+  const messages = await Message.find(query)
     .populate("sender", "name email profilePicture")
     .populate("replyTo");
 
