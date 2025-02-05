@@ -19,6 +19,7 @@ import "./src/services/consumeVehicleData.js";
 import notificationRoutes from "./src/routes/notificationRoutes.js";
 const app = express();
 
+// hello 
 // Middleware
 app.use(morgan("dev"));
 app.use(express.json({ limit: "10kb" }));
