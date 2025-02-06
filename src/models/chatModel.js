@@ -37,7 +37,7 @@ const chatSchema = new mongoose.Schema(
       required: function () {
         return this.type === "group";
       },
-      uniuqe: true,
+      unique: true,
     },
     participants: [
       {
