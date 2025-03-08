@@ -1,0 +1,2 @@
+## Description 
+GoDriver is a comprehensive fleet management application designed to streamline the operations of vehicle fleets. The application provides features such as task management, real-time chat, vehicle tracking, driver management, and alert notifications. It includes a robust authentication system and supports different user roles including drivers, managers, and administrators. The backend is built with Node.js and Express, ensuring efficient handling of API requests and real-time communication through WebSockets.
